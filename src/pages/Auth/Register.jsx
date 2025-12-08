@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
+import useAxios from "../../hooks/useAxios";
+import GoogleLogin from "./GoogleLogin";
 
 const Register = () => {
   const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
-
-  const { registerUser, signInGoogle, updateUserProfile } = useAuth();
+  const axiosInstance = useAxios();
+  const { registerUser, updateUserProfile } = useAuth();
 
   const {
     register,
@@ -22,42 +24,34 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     setAuthError("");
+
     const { name, email, password, photoURL } = data;
 
     try {
-      // TODO: Replace with your real registration logic (Firebase / API)
-      // Example:
-      // const userCredential = await createUser(email, password);
-      // await updateUserProfile({ displayName: name, photoURL });
-      // await saveUserToDb({ name, email, photoURL, role: 'citizen' });
+      // 1) register the user with Firebase Auth
+      const res = await registerUser(email, password);
+      const firebaseUser = res.user;
 
-      console.log("Register with:", { name, email, password, photoURL });
-      registerUser(email, password).then((res) => {
-        if (res.user.accessToken) {
-          updateUserProfile({ displayName: name, photoURL }).then(() => {
-            navigate(from, { replace: true });
-          });
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      setAuthError("Registration failed. Please try again.");
-    }
-  };
+      // 2) update displayName and photoURL (optional but nice)
+      await updateUserProfile({ displayName: name, photoURL });
 
-  const handleGoogleSignUp = async () => {
-    try {
-      setAuthError("");
-      // TODO: replace with your Google sign-up logic
-      // await signUpWithGoogle();
-      signInGoogle().then((res) => {
-        if (res.user.accessToken) {
-          navigate(from, { replace: true });
-        }
+      // 3) get ID token to prove identity to your backend
+      const idToken = await firebaseUser.getIdToken(/* forceRefresh = */ true);
+
+      // 4) send allowed profile fields to your backend (backend will verify token)
+      const payload = { name, photoURL };
+      await axiosInstance.post("/users", payload, {
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          "Content-Type": "application/json",
+        },
       });
+
+      // 5) navigate after successful registration + sync
+      navigate(from, { replace: true });
     } catch (err) {
-      console.error(err);
-      setAuthError("Google sign-up failed. Please try again.");
+      console.error("Registration error:", err);
+      setAuthError(err.message || "Registration failed. Please try again.");
     }
   };
 
@@ -268,43 +262,7 @@ const Register = () => {
 
             {/* Divider */}
             <div className="divider text-xs">OR CONTINUE WITH</div>
-
-            {/* Google button */}
-            <button
-              type="button"
-              onClick={handleGoogleSignUp}
-              className="btn bg-white text-black border-[#e5e5e5] w-full"
-              disabled={isSubmitting}
-            >
-              <svg
-                aria-label="Google logo"
-                width="16"
-                height="16"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-              >
-                <g>
-                  <path d="m0 0H512V512H0" fill="#fff"></path>
-                  <path
-                    fill="#34a853"
-                    d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
-                  ></path>
-                  <path
-                    fill="#4285f4"
-                    d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
-                  ></path>
-                  <path
-                    fill="#fbbc02"
-                    d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
-                  ></path>
-                  <path
-                    fill="#ea4335"
-                    d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
-                  ></path>
-                </g>
-              </svg>
-              Sign up with Google
-            </button>
+            <GoogleLogin />
 
             {/* Footer text */}
             <p className="text-center text-sm mt-2">

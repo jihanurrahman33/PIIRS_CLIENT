@@ -27,6 +27,11 @@ const NavBar = () => {
       <li>
         <Link to="/all-issues">All Issues</Link>
       </li>
+      {user && (
+        <li>
+          <Link to="/report-issue">Report An Issue</Link>
+        </li>
+      )}
       <li>
         <Link to="/about">About</Link>
       </li>
@@ -107,7 +112,7 @@ const NavBar = () => {
                 <ul className="py-2 text-sm text-gray-700">
                   <li>
                     <Link
-                      to="/dashboard/citizen/profile"
+                      to="/dashboard/profile"
                       className="flex items-center gap-2 px-4 py-2 hover:bg-base-200 transition-colors"
                       onClick={() => setOpen(false)}
                     >
@@ -127,7 +132,7 @@ const NavBar = () => {
 
                   <li>
                     <Link
-                      to="/dashboard/citizen/my-issues"
+                      to="/dashboard/my-issues"
                       className="flex items-center gap-2 px-4 py-2 hover:bg-base-200 transition-colors"
                       onClick={() => setOpen(false)}
                     >

@@ -8,6 +8,12 @@ import GetStarted from "../pages/Auth/GetStarted";
 import Issues from "../pages/Issues/Issues";
 import About from "../pages/About/About";
 import Contact from "../pages/Contact/Contact";
+import ReportIssue from "../pages/ReportIssue/ReportIssue";
+import PrivateRoute from "../auth/PrivateRoute";
+import DashBoardLayout from "../layouts/DashBoardLayout";
+import Profile from "../pages/Dashboard/Citizen/Profile/Profile";
+import MyIssues from "../pages/Dashboard/Citizen/MyIssues/MyIssues";
+import IssueDetails from "../components/IssueDetails/IssueDetails";
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +47,40 @@ export const router = createBrowserRouter([
       {
         path: "contact",
         element: <Contact />,
+      },
+      {
+        path: "report-issue",
+        element: (
+          <PrivateRoute>
+            <ReportIssue />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "issue-details/:id",
+        element: (
+          <PrivateRoute>
+            <IssueDetails />
+          </PrivateRoute>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/Dashboard",
+    element: (
+      <PrivateRoute>
+        <DashBoardLayout></DashBoardLayout>
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        path: "profile",
+        element: <Profile></Profile>,
+      },
+      {
+        path: "my-issues",
+        element: <MyIssues></MyIssues>,
       },
     ],
   },

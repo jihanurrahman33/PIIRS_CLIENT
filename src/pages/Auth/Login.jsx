@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
+import GoogleLogin from "./GoogleLogin";
 
 const Login = () => {
   const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const { signInGoogle, signInUser } = useAuth();
+  const { signInUser } = useAuth();
   const from = location.state?.from?.pathname || "/";
 
   const {
@@ -21,8 +22,6 @@ const Login = () => {
     const { email, password } = data;
 
     try {
-      // TODO: replace with your actual login logic (Firebase / API)
-      // await signInUser(email, password);
       console.log("Login with:", email, password);
       signInUser(email, password).then((res) => {
         if (res.user.accessToken) {
@@ -32,20 +31,6 @@ const Login = () => {
     } catch (err) {
       console.error(err);
       setAuthError("Invalid email or password. Please try again.");
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      setAuthError("");
-      signInGoogle().then((res) => {
-        if (res.user.accessToken) {
-          navigate(from, { replace: true });
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      setAuthError("Google sign-in failed. Please try again.");
     }
   };
 
@@ -161,44 +146,7 @@ const Login = () => {
 
             {/* Divider */}
             <div className="divider text-xs">OR CONTINUE WITH</div>
-
-            {/* Google button */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="btn bg-white text-black border-[#e5e5e5] w-full"
-              disabled={isSubmitting}
-            >
-              <svg
-                aria-label="Google logo"
-                width="16"
-                height="16"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-              >
-                <g>
-                  <path d="m0 0H512V512H0" fill="#fff"></path>
-                  <path
-                    fill="#34a853"
-                    d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
-                  ></path>
-                  <path
-                    fill="#4285f4"
-                    d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
-                  ></path>
-                  <path
-                    fill="#fbbc02"
-                    d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
-                  ></path>
-                  <path
-                    fill="#ea4335"
-                    d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
-                  ></path>
-                </g>
-              </svg>
-              Login with Google
-            </button>
-
+            <GoogleLogin />
             {/* Footer text */}
             <p className="text-center text-sm mt-2">
               Don&rsquo;t have an account?{" "}
