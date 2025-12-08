@@ -24,7 +24,7 @@ const Login = () => {
       // TODO: replace with your actual login logic (Firebase / API)
       // await signInUser(email, password);
       console.log("Login with:", email, password);
-      signInUser().then((res) => {
+      signInUser(email, password).then((res) => {
         if (res.user.accessToken) {
           navigate(from, { replace: true });
         }
