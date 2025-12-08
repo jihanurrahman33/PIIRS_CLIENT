@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useForm } from "react-hook-form";
+import useAuth from "../../hooks/useAuth";
 
 const Register = () => {
   const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+
+  const { registerUser, signInGoogle } = useAuth();
 
   const {
     register,
@@ -29,6 +32,7 @@ const Register = () => {
       // await saveUserToDb({ name, email, photoURL, role: 'citizen' });
 
       console.log("Register with:", { name, email, password, photoURL });
+      registerUser(email, password).then((res) => console.log(res.user));
 
       navigate(from, { replace: true });
     } catch (err) {
@@ -42,6 +46,7 @@ const Register = () => {
       setAuthError("");
       // TODO: replace with your Google sign-up logic
       // await signUpWithGoogle();
+      signInGoogle().then((res) => console.log(res.user));
       navigate(from, { replace: true });
     } catch (err) {
       console.error(err);
