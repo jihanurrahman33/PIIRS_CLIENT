@@ -1,19 +1,29 @@
 import React from "react";
-import logoImg from "../../assets/logo.png";
+
+import { Link } from "react-router";
+import { toast } from "react-toastify";
+import Logo from "../Logo/Logo";
 const NavBar = () => {
   const links = (
     <>
       <li>
-        <a>Item 1</a>
+        <Link>Home</Link>
       </li>
       <li>
-        <a>Parent</a>
+        <Link>All Issues</Link>
       </li>
       <li>
-        <a>Item 3</a>
+        <Link>About</Link>
+      </li>
+      <li>
+        <Link>Conatct Us</Link>
       </li>
     </>
   );
+
+  const handleToast = () => {
+    toast.success("hello World");
+  };
   return (
     <div className="navbar bg-base-100 shadow-sm">
       <div className="navbar-start">
@@ -41,16 +51,15 @@ const NavBar = () => {
             {links}
           </ul>
         </div>
-        <img
-          src={logoImg}
-          className="btn btn-ghost text-xl w-[150px] h-[60px]"
-        />
+        <Logo />
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">{links}</ul>
       </div>
       <div className="navbar-end space-x-1">
-        <a className="btn btn-primary">Get Started</a>
+        <a onClick={handleToast} className="btn btn-primary">
+          Get Started
+        </a>
       </div>
     </div>
   );
