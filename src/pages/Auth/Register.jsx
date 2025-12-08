@@ -9,7 +9,7 @@ const Register = () => {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-  const { registerUser, signInGoogle } = useAuth();
+  const { registerUser, signInGoogle, updateUserProfile } = useAuth();
 
   const {
     register,
@@ -32,9 +32,13 @@ const Register = () => {
       // await saveUserToDb({ name, email, photoURL, role: 'citizen' });
 
       console.log("Register with:", { name, email, password, photoURL });
-      registerUser(email, password).then((res) => console.log(res.user));
-
-      navigate(from, { replace: true });
+      registerUser(email, password).then((res) => {
+        if (res.user.accessToken) {
+          updateUserProfile({ displayName: name, photoURL }).then(() => {
+            navigate(from, { replace: true });
+          });
+        }
+      });
     } catch (err) {
       console.error(err);
       setAuthError("Registration failed. Please try again.");
@@ -46,8 +50,11 @@ const Register = () => {
       setAuthError("");
       // TODO: replace with your Google sign-up logic
       // await signUpWithGoogle();
-      signInGoogle().then((res) => console.log(res.user));
-      navigate(from, { replace: true });
+      signInGoogle().then((res) => {
+        if (res.user.accessToken) {
+          navigate(from, { replace: true });
+        }
+      });
     } catch (err) {
       console.error(err);
       setAuthError("Google sign-up failed. Please try again.");

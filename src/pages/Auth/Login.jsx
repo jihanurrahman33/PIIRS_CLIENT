@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useForm } from "react-hook-form";
+import useAuth from "../../hooks/useAuth";
 
 const Login = () => {
   const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { signInGoogle, signInUser } = useAuth();
   const from = location.state?.from?.pathname || "/";
 
   const {
@@ -23,8 +24,11 @@ const Login = () => {
       // TODO: replace with your actual login logic (Firebase / API)
       // await signInUser(email, password);
       console.log("Login with:", email, password);
-
-      navigate(from, { replace: true });
+      signInUser().then((res) => {
+        if (res.user.accessToken) {
+          navigate(from, { replace: true });
+        }
+      });
     } catch (err) {
       console.error(err);
       setAuthError("Invalid email or password. Please try again.");
@@ -34,9 +38,11 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       setAuthError("");
-      // TODO: replace with your Google sign-in logic
-      // await signInWithGoogle();
-      navigate(from, { replace: true });
+      signInGoogle().then((res) => {
+        if (res.user.accessToken) {
+          navigate(from, { replace: true });
+        }
+      });
     } catch (err) {
       console.error(err);
       setAuthError("Google sign-in failed. Please try again.");
