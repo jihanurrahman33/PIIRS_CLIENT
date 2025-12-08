@@ -19,16 +19,16 @@ export const router = createBrowserRouter([
         path: "get-started",
         Component: GetStarted,
       },
+      {
+        path: "login",
+        Component: Login,
+      },
+      {
+        path: "register",
+        Component: Register,
+      },
     ],
   },
 
-  {
-    path: "login",
-    Component: Login,
-  },
-  {
-    path: "register",
-    Component: Register,
-  },
   { path: "*", element: <Error404 /> },
 ]);
