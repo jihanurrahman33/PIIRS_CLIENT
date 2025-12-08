@@ -1,7 +1,5 @@
 import React from "react";
-
-import { Link } from "react-router";
-import { toast } from "react-toastify";
+import { Link, Links } from "react-router";
 import Logo from "../Logo/Logo";
 const NavBar = () => {
   const links = (
@@ -21,9 +19,6 @@ const NavBar = () => {
     </>
   );
 
-  const handleToast = () => {
-    toast.success("hello World");
-  };
   return (
     <div className="navbar bg-base-100 shadow-sm">
       <div className="navbar-start">
@@ -57,9 +52,9 @@ const NavBar = () => {
         <ul className="menu menu-horizontal px-1">{links}</ul>
       </div>
       <div className="navbar-end space-x-1">
-        <a onClick={handleToast} className="btn btn-primary">
+        <Link to={"/get-started"} className="btn btn-primary">
           Get Started
-        </a>
+        </Link>
       </div>
     </div>
   );
