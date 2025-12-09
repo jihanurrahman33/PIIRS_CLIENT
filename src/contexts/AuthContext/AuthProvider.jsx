@@ -30,10 +30,17 @@ const AuthProvider = ({ children }) => {
     return signInWithPopup(auth, googleProvider);
   };
 
-  const logOut = () => {
-    setLoading(true);
-    return signOut(auth);
+  const logOut = async () => {
+    try {
+      setLoading(true);
+      await signOut(auth);
+      setUser(null);
+      localStorage.removeItem("access-token");
+    } finally {
+      setLoading(false);
+    }
   };
+
   const updateUserProfile = (profile) => {
     return updateProfile(auth.currentUser, profile);
   };
