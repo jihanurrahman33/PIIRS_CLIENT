@@ -156,7 +156,9 @@ const ManageStaff = () => {
                 <td>{staff.email}</td>
                 <td>{staff.department ?? "-"}</td>
                 <td className="flex gap-2">
-                  <button className="btn btn-sm btn-error">Remove Staff</button>
+                  <button className="btn btn-sm btn-error text-white">
+                    Remove Staff
+                  </button>
                   <button className="btn btn-sm btn-primary">Edit</button>
                 </td>
               </tr>
