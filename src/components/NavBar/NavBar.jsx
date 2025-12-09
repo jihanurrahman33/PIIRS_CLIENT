@@ -122,7 +122,7 @@ const NavBar = () => {
 
                   <li>
                     <Link
-                      to="/dashboard/citizen"
+                      to="/dashboard"
                       className="flex items-center gap-2 px-4 py-2 hover:bg-base-200 transition-colors"
                       onClick={() => setOpen(false)}
                     >
@@ -146,7 +146,7 @@ const NavBar = () => {
                   <button
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-base-200 transition-colors"
                     onClick={() => {
-                      logOut().then(() => console.log("logged Out"));
+                      logOut().then(() => console.log("logged out"));
                       setOpen(false);
                     }}
                   >

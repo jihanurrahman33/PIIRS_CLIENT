@@ -5,13 +5,15 @@ import { useNavigate } from "react-router";
 const axiosSecure = axios.create({
   baseURL: "http://localhost:3000",
 });
+
 const useAxiosSecure = () => {
+  const token = localStorage.getItem("access-token");
   const navigate = useNavigate();
   const { user, logOut } = useAuth();
   useEffect(() => {
     //intercept request
     const reqInterceptor = axiosSecure.interceptors.request.use((config) => {
-      config.headers.Authorization = `Bearer ${user?.accessToken}`;
+      config.headers.Authorization = `Bearer ${token}`;
       return config;
     });
     //interceptor response

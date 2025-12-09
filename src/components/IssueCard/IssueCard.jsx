@@ -1,8 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
+import useAuth from "../../hooks/useAuth";
+import { toast } from "react-toastify";
 
 export default function IssueCard({ issue = {}, onUpvote, onView }) {
-  // destructure with sensible fallbacks
+  const { user } = useAuth();
   const {
     _id,
     title = "Untitled Issue",
@@ -159,8 +161,9 @@ export default function IssueCard({ issue = {}, onUpvote, onView }) {
         <div className="pt-2 flex items-center justify-between gap-3">
           <button
             onClick={() => onUpvote?.(issue)}
+            disabled={issue.createdBy === user?.email}
             aria-label="Upvote"
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-md border hover:bg-gray-50 transition text-sm"
+            className="btn inline-flex items-center gap-2 px-3 py-2 rounded-md border hover:bg-gray-50 transition text-sm"
           >
             <svg
               className="w-4 h-4"

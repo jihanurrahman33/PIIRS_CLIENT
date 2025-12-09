@@ -14,6 +14,12 @@ import DashBoardLayout from "../layouts/DashBoardLayout";
 import Profile from "../pages/Dashboard/Citizen/Profile/Profile";
 import MyIssues from "../pages/Dashboard/Citizen/MyIssues/MyIssues";
 import IssueDetails from "../components/IssueDetails/IssueDetails";
+import ManageStaff from "../pages/Dashboard/Admin/ManageStaff/ManageStaff";
+import AssignedIssues from "../pages/Dashboard/Staff/AssignedIssues/AssignedIssues";
+import StaffRoute from "../auth/StaffRoute";
+import AdminRoute from "../auth/AdminRoute";
+import AllIssues from "../pages/Dashboard/Admin/AllIssues/AllIssues";
+import ManageCitizens from "../pages/Dashboard/Admin/ManageCitizens/ManageCitizens";
 
 export const router = createBrowserRouter([
   {
@@ -67,7 +73,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/Dashboard",
+    path: "/dashboard",
     element: (
       <PrivateRoute>
         <DashBoardLayout></DashBoardLayout>
@@ -81,6 +87,38 @@ export const router = createBrowserRouter([
       {
         path: "my-issues",
         element: <MyIssues></MyIssues>,
+      },
+      {
+        path: "manage-staff",
+        element: (
+          <AdminRoute>
+            <ManageStaff></ManageStaff>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "manage-citizens",
+        element: (
+          <AdminRoute>
+            <ManageCitizens></ManageCitizens>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "all-issues",
+        element: (
+          <AdminRoute>
+            <AllIssues></AllIssues>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assigned-issues",
+        element: (
+          <StaffRoute>
+            <AssignedIssues></AssignedIssues>
+          </StaffRoute>
+        ),
       },
     ],
   },

@@ -1,8 +1,15 @@
 import React from "react";
 import { Link, Outlet } from "react-router";
 import { GoIssueTrackedBy } from "react-icons/go";
+import { RiTeamLine } from "react-icons/ri";
+import useRole from "../hooks/useRole";
+import { MdAssignment } from "react-icons/md";
+import { RiFolderWarningLine } from "react-icons/ri";
+import { RiCommunityLine } from "react-icons/ri";
 
 const DashBoardLayout = () => {
+  const { role } = useRole();
+
   return (
     <div>
       <div className="drawer lg:drawer-open">
@@ -50,7 +57,8 @@ const DashBoardLayout = () => {
             <ul className="menu w-full grow">
               {/* List item */}
               <li>
-                <button
+                <Link
+                  to={"/"}
                   className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                   data-tip="Homepage"
                 >
@@ -69,8 +77,66 @@ const DashBoardLayout = () => {
                     <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                   </svg>
                   <span className="is-drawer-close:hidden">Homepage</span>
-                </button>
+                </Link>
               </li>
+              {/* staff role  */}
+              {role === "staff" && (
+                <li>
+                  <Link
+                    to={"/dashboard/assigned-issues"}
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="Assigned Issues"
+                  >
+                    <MdAssignment />
+                    <span className="is-drawer-close:hidden">
+                      Assigned Issues
+                    </span>
+                  </Link>
+                </li>
+              )}
+
+              {/*Admin Route */}
+              {role === "admin" && (
+                <>
+                  <li>
+                    <Link
+                      to={"/dashboard/manage-staff"}
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Manage Staff"
+                    >
+                      {/* My Issues icon */}
+                      <RiTeamLine />
+                      <span className="is-drawer-close:hidden">
+                        Manage Staff
+                      </span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to={"/dashboard/all-issues"}
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="All Issues"
+                    >
+                      {/* My Issues icon */}
+                      <RiFolderWarningLine />
+                      <span className="is-drawer-close:hidden">All Issues</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to={"/dashboard/manage-citizens"}
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Manage Citizens"
+                    >
+                      {/* My Issues icon */}
+                      <RiCommunityLine />
+                      <span className="is-drawer-close:hidden">
+                        Manage Citizens
+                      </span>
+                    </Link>
+                  </li>
+                </>
+              )}
 
               {/* List item */}
               <li>
