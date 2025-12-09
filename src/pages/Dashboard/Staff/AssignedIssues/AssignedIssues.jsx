@@ -1,42 +1,52 @@
 import React from "react";
+import useAuth from "../../../../hooks/useAuth";
+import useAxiosSecure from "../../../../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
 
 const AssignedIssues = () => {
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const { data: assignedIssues = [] } = useQuery({
+    queryKey: ["assignedIssues", user?.email],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/issues/${user?.email}/assinedTask`);
+      return res.data;
+    },
+  });
+  console.log(assignedIssues);
   return (
     <div>
-      <h2 className="text-2xl">Assigned Issues: {}</h2>
+      <h2 className="text-2xl">Assigned Issues: {assignedIssues.length}</h2>
       <div className="overflow-x-auto">
         <table className="table table-zebra">
           {/* head */}
           <thead>
             <tr>
               <th></th>
-              <th>Name</th>
-              <th>Job</th>
-              <th>Favorite Color</th>
+              <th>Title</th>
+              <th>Priority</th>
+              <th>Location</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {/* row 1 */}
-            <tr>
-              <th>1</th>
-              <td>Cy Ganderton</td>
-              <td>Quality Control Specialist</td>
-              <td>Blue</td>
-            </tr>
-            {/* row 2 */}
-            <tr>
-              <th>2</th>
-              <td>Hart Hagerty</td>
-              <td>Desktop Support Technician</td>
-              <td>Purple</td>
-            </tr>
-            {/* row 3 */}
-            <tr>
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-            </tr>
+            {assignedIssues.map((issue, index) => (
+              <tr key={issue._id}>
+                <th>{index + 1}</th>
+                <td>{issue.title}</td>
+                <td>{issue.priority}</td>
+                <td>{issue.location}</td>
+                <td>
+                  <select defaultValue={issue.status} className="select">
+                    <option disabled={true}>Change Status</option>
+                    <option>in-progress</option>
+                    <option>working</option>
+                    <option>resolved</option>
+                    <option>closed</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
