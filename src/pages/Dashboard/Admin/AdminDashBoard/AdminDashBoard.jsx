@@ -20,7 +20,7 @@ export default function AdminDashBoard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const { data: stats = {}, isLoading: statsLoading } = useQuery({
+  const { data: stats = {} } = useQuery({
     queryKey: ["admin-dashboard-stats"],
     queryFn: async () => {
       const res = await axiosSecure.get("/dashboard/admin/stats");

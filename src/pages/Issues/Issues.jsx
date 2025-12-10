@@ -1,15 +1,15 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
 import IssueCard from "../../components/IssueCard/IssueCard";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import useAxios from "../../hooks/useAxios";
 
 const Issues = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const axiosSecure = useAxiosSecure();
+  const axiosInstance = useAxios();
   const queryClient = useQueryClient();
 
   // track which issue(s) are being updated to prevent double clicks
@@ -18,7 +18,7 @@ const Issues = () => {
   const { data: issues = [] } = useQuery({
     queryKey: ["issues", user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get("/issues/all");
+      const res = await axiosInstance.get("/issues/all");
       return res.data;
     },
   });
@@ -63,7 +63,7 @@ const Issues = () => {
 
     try {
       // send patch (body empty to avoid form-encoding issues)
-      const res = await axiosSecure.patch(`/issues/${id}/upvote`, {});
+      const res = await axiosInstance.patch(`/issues/${id}/upvote`, {});
       // server should return { upvoted: boolean, upvotes: number }
       const { upvoted, upvotes } = res.data || {};
 

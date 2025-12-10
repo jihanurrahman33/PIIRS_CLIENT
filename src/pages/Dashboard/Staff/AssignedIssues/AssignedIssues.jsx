@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import useAuth from "../../../../hooks/useAuth";
 import useAxiosSecure from "../../../../hooks/useAxiosSecure";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const AssignedIssues = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-  const queryClient = useQueryClient();
+
   const { data: assignedIssues = [], refetch } = useQuery({
     queryKey: ["assignedIssues", user?.email],
     queryFn: async () => {

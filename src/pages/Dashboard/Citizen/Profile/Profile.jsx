@@ -6,17 +6,6 @@ import { useNavigate } from "react-router";
 import useAuth from "../../../../hooks/useAuth";
 import useAxiosSecure from "../../../../hooks/useAxiosSecure";
 
-/**
- * Profile page
- *
- * - Shows profile card (avatar, name, email, subscription status)
- * - Lets user edit safe fields (name, phone, address, photoURL)
- * - Fetches user's issue count and recent issues (for summary)
- * - Uses axiosSecure (attaches ID token) to call your backend endpoints:
- *    GET  /users/me/issue-count       -> { count, isPremium, limit }
- *    GET  /issues?reporterEmail=...   -> recent issues list (optional)
- *    POST /users                      -> upsert profile (server verifies token)
- */
 export default function Profile() {
   const { user, logOut } = useAuth() ?? {};
   const axiosSecure = useAxiosSecure();
@@ -35,6 +24,7 @@ export default function Profile() {
       photoURL: "",
     },
   });
+  const [subscribing, setSubscribing] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [countInfo, setCountInfo] = useState({
@@ -44,14 +34,120 @@ export default function Profile() {
   });
   const [recentIssues, setRecentIssues] = useState([]);
   const [saving, setSaving] = useState(false);
+  const handleSubscribe = async () => {
+    if (!user) {
+      toast.error("Please login to subscribe");
+      return;
+    }
 
-  // Load profile info into form and fetch counts + recent issues
+    try {
+      setSubscribing(true);
+      const res = await axiosSecure.post("/create-checkout-session");
+      const data = res?.data || {};
+
+      // Preferred: server returned a complete URL to redirect
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      // Fallback: server returned session id — attempt to redirect to Checkout
+      if (data.id) {
+        // Usually server returns URL — but if only id present, try client redirect via Stripe.js (optional)
+        // You can also construct a url, but Stripe Checkout URL is safer from the server.
+        // As a simple fallback, open Stripe-hosted page:
+        window.location.href = `https://checkout.stripe.com/pay/${data.id}`;
+        return;
+      }
+
+      toast.error("Failed to create checkout session");
+    } catch (err) {
+      console.error("create-checkout-session error:", err);
+      toast.error(err.response?.data?.error || "Unable to start checkout");
+    } finally {
+      setSubscribing(false);
+    }
+  };
   useEffect(() => {
     let mounted = true;
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    const canceled = params.get("canceled");
+
+    if (canceled) {
+      toast.info("Payment canceled");
+      // remove canceled param
+      try {
+        const u = new URL(window.location.href);
+        u.searchParams.delete("canceled");
+        window.history.replaceState({}, "", u.toString());
+      } catch (e) {}
+    }
+
+    if (!sessionId) return () => (mounted = false);
+
+    (async () => {
+      try {
+        toast.info("Verifying payment...");
+        const res = await axiosSecure.patch("/payment-success", null, {
+          params: { session_id: sessionId },
+        });
+
+        if (!mounted) return;
+
+        const data = res?.data || {};
+        if (data.success) {
+          toast.success("Payment successful — you are now premium");
+          setCountInfo((prev) => ({ ...prev, isPremium: true }));
+        } else if (data.message === "already exist") {
+          toast.info("Payment already recorded");
+          setCountInfo((prev) => ({ ...prev, isPremium: true }));
+        } else {
+          toast.error("Payment verification failed");
+        }
+
+        // optional: re-fetch user or stats endpoints instead of just toggling local state:
+        // const me = await axiosSecure.get("/users/me"); setCountInfo(prev => ({...prev, isPremium: !!me.data.isPremium}));
+      } catch (err) {
+        console.error("payment-success fetch error:", err);
+        toast.error("Payment verification error");
+      } finally {
+        // remove session_id so effect won't run on reload
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.delete("session_id");
+          window.history.replaceState({}, "", u.toString());
+        } catch (e) {}
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [axiosSecure]);
+
+  useEffect(() => {
+    let mounted = true;
+
     async function fetchData() {
       try {
-        if (!user) return;
-        // pre-fill form from firebase user + server if desired
+        // if there's no user, clear state and stop loading
+        if (!user) {
+          if (mounted) {
+            reset({
+              name: "",
+              phone: "",
+              address: "",
+              photoURL: "",
+            });
+            setCountInfo({ count: 0, isPremium: false, limit: 3 });
+            setRecentIssues([]);
+            setLoading(false);
+          }
+          return;
+        }
+
+        // pre-fill form from firebase user
         reset({
           name: user.displayName || "",
           phone: user.phone || "",
@@ -60,22 +156,63 @@ export default function Profile() {
         });
 
         // fetch issue count + premium info
-        const countRes = await axiosSecure.get("/users/me/issue-count");
+        let countRes;
+        try {
+          // countRes = await axiosSecure.get("/users/me/issue-count");
+        } catch (err) {
+          // handle gracefully: show fallback values
+          countRes = null;
+        }
+
         if (!mounted) return;
+
+        const countData = countRes?.data ?? {};
         setCountInfo({
-          count: countRes.data.count ?? 0,
-          isPremium: !!countRes.data.isPremium,
-          limit: countRes.data.limit ?? 3,
+          count: countData.count ?? 0,
+          isPremium: Boolean(countData.isPremium),
+          limit: countData.limit ?? 3,
         });
 
-        // fetch recent issues reported by this user (backend should support filter)
-        // we use email as reporter id because your sample used createdBy as email
+        // fetch recent issues reported by this user
         const email = user?.email;
         if (email) {
-          const issuesRes = await axiosSecure.get("/issues", {
-            params: { reporterEmail: email, limit: 5, sort: "-createdAt" },
-          });
-          setRecentIssues(issuesRes.data || []);
+          // server may accept different param names; try createdBy first
+          let issuesRes;
+          try {
+            issuesRes = await axiosSecure.get("/issues", {
+              params: { createdBy: email, limit: 5, sort: "createdAt_desc" },
+            });
+          } catch (err) {
+            // fallback to other param name if needed
+            try {
+              issuesRes = await axiosSecure.get("/issues", {
+                params: {
+                  reporterEmail: email,
+                  limit: 5,
+                  sort: "createdAt_desc",
+                },
+              });
+            } catch (err2) {
+              issuesRes = null;
+            }
+          }
+
+          if (!mounted) return;
+
+          // accept either plain array or { data: [...] } shape
+          const issuesPayload = issuesRes?.data;
+          let issuesArray = [];
+          if (Array.isArray(issuesPayload)) {
+            issuesArray = issuesPayload;
+          } else if (issuesPayload && Array.isArray(issuesPayload.data)) {
+            issuesArray = issuesPayload.data;
+          } else if (issuesRes && Array.isArray(issuesRes)) {
+            issuesArray = issuesRes;
+          } else {
+            issuesArray = [];
+          }
+
+          setRecentIssues(issuesArray);
         }
       } catch (err) {
         console.error("Profile fetch error:", err);
@@ -84,17 +221,16 @@ export default function Profile() {
         if (mounted) setLoading(false);
       }
     }
+
     fetchData();
     return () => {
       mounted = false;
     };
   }, [user, axiosSecure, reset]);
 
-  // Save profile handler -> sends allowed fields to backend which verifies token
   const onSave = async (formData) => {
     try {
       setSaving(true);
-      // whitelist only safe fields
       const payload = {
         name: formData.name?.trim(),
         phone: formData.phone?.trim(),
@@ -102,17 +238,21 @@ export default function Profile() {
         photoURL: formData.photoURL?.trim(),
       };
 
-      // backend verifies token via axiosSecure interceptor / middleware
-      const res = await axiosSecure.post("/users", payload);
-      // depending on backend, you might receive updated user object
+      await axiosSecure.post("/users", payload);
       toast.success("Profile saved");
-      // optionally update local UI / re-fetch counters
-      const countRes = await axiosSecure.get("/users/me/issue-count");
-      setCountInfo({
-        count: countRes.data.count ?? 0,
-        isPremium: !!countRes.data.isPremium,
-        limit: countRes.data.limit ?? 3,
-      });
+
+      // refresh counts
+      try {
+        const countRes = await axiosSecure.get("/users/me/issue-count");
+        const countData = countRes?.data ?? {};
+        setCountInfo({
+          count: countData.count ?? 0,
+          isPremium: Boolean(countData.isPremium),
+          limit: countData.limit ?? 3,
+        });
+      } catch (err) {
+        // ignore
+      }
     } catch (err) {
       console.error("Save profile error:", err);
       toast.error(
@@ -125,7 +265,7 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
-      await logOut?.(); // if your hook uses signOut or logOut
+      await logOut?.();
       navigate("/login");
     } catch (err) {
       console.error("Logout failed", err);
@@ -151,7 +291,6 @@ export default function Profile() {
     );
   }
 
-  // Quick UI pieces
   const remaining = countInfo.isPremium
     ? "Unlimited"
     : Math.max(0, countInfo.limit - countInfo.count);
@@ -159,7 +298,6 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-base-200 py-10 px-4">
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT: Profile card */}
         <div className="col-span-1">
           <div className="card bg-base-100 shadow border">
             <div className="card-body text-center">
@@ -207,15 +345,16 @@ export default function Profile() {
               <div className="card-actions justify-center mt-4">
                 <button
                   className="btn btn-outline"
-                  onClick={() => navigate("/dashboard/citizen/my-issues")}
+                  onClick={() => navigate("/dashboard/my-issues")}
                 >
                   My Issues
                 </button>
                 <button
                   className="btn btn-primary"
-                  onClick={() => navigate("/dashboard/profile/subscribe")}
+                  onClick={handleSubscribe}
+                  disabled={subscribing || countInfo.isPremium}
                 >
-                  Subscribe
+                  {subscribing ? "Redirecting..." : "Subscribe"}
                 </button>
               </div>
 
@@ -228,7 +367,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* MIDDLE: Edit profile */}
         <div className="col-span-2">
           <div className="card bg-base-100 shadow border">
             <div className="card-body">
@@ -303,7 +441,6 @@ export default function Profile() {
                     type="button"
                     className="btn btn-ghost"
                     onClick={() => {
-                      // reset form to current firebase values (quick cancel)
                       reset({
                         name: user.displayName || "",
                         phone: user.phone || "",
@@ -320,7 +457,6 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Recent issues */}
           <div className="card bg-base-100 shadow border mt-6">
             <div className="card-body">
               <h4 className="text-lg font-semibold">Recent Issues</h4>
@@ -362,7 +498,7 @@ export default function Profile() {
                       </div>
                       <div>
                         <button
-                          onClick={() => navigate(`/issues/${it._id}`)}
+                          onClick={() => navigate(`/issue-details/${it._id}`)}
                           className="btn btn-sm btn-ghost"
                         >
                           View

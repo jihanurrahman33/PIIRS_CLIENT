@@ -18,7 +18,7 @@ export default function CitizenDashBoard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const { data: stats = {}, isLoading: statsLoading } = useQuery({
+  const { data: stats = {} } = useQuery({
     queryKey: ["citizen-stats", user?.email],
     queryFn: async () => {
       const res = await axiosSecure.get(
