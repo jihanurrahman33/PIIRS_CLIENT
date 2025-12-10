@@ -20,6 +20,7 @@ import StaffRoute from "../auth/StaffRoute";
 import AdminRoute from "../auth/AdminRoute";
 import AllIssues from "../pages/Dashboard/Admin/AllIssues/AllIssues";
 import ManageCitizens from "../pages/Dashboard/Admin/ManageCitizens/ManageCitizens";
+import DashBoard from "../pages/Dashboard/DashBoard/DashBoard";
 
 export const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
+      {
+        index: true,
+        element: <DashBoard></DashBoard>,
+      },
       {
         path: "profile",
         element: <Profile></Profile>,
