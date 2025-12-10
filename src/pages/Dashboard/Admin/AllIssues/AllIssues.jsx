@@ -1,15 +1,17 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useRef, useState } from "react";
 import useAxiosSecure from "../../../../hooks/useAxiosSecure";
+import useAuth from "../../../../hooks/useAuth";
 
 const AllIssues = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
-  const { data: issues = [] } = useQuery({
-    queryKey: ["issues"],
+  const { data: issues = [], refetch } = useQuery({
+    queryKey: ["issues", user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get("/issues");
+      const res = await axiosSecure.get("/issues/all/admin");
       return res.data;
     },
   });
@@ -66,6 +68,7 @@ const AllIssues = () => {
       }
 
       staffAssign.current?.close();
+      refetch();
     } catch (err) {
       // rollback on error
       queryClient.setQueryData(["issues"], previous);

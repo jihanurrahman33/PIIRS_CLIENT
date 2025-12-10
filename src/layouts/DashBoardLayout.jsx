@@ -6,6 +6,7 @@ import useRole from "../hooks/useRole";
 import { MdAssignment } from "react-icons/md";
 import { RiFolderWarningLine } from "react-icons/ri";
 import { RiCommunityLine } from "react-icons/ri";
+import Logo from "../components/Logo/Logo";
 
 const DashBoardLayout = () => {
   const { role } = useRole();
@@ -38,7 +39,7 @@ const DashBoardLayout = () => {
                 <path d="M14 10l2 2l-2 2"></path>
               </svg>
             </label>
-            <div className="px-4">Navbar Title</div>
+            <Logo></Logo>
           </nav>
           {/* Page content here */}
           <div className="p-4">

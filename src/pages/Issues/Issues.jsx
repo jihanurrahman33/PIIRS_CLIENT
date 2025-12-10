@@ -16,9 +16,9 @@ const Issues = () => {
   const [loadingIds, setLoadingIds] = useState(new Set());
 
   const { data: issues = [] } = useQuery({
-    queryKey: ["issues"],
+    queryKey: ["issues", user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get("/issues");
+      const res = await axiosSecure.get("/issues/all");
       return res.data;
     },
   });
@@ -107,7 +107,33 @@ const Issues = () => {
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">All Issues: {issues.length}</h2>
-
+      <div className="flex justify-between p-4">
+        <label className="input">
+          <svg
+            className="h-[1em] opacity-50"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <g
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              strokeWidth="2.5"
+              fill="none"
+              stroke="currentColor"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </g>
+          </svg>
+          <input type="search" required placeholder="Search" />
+        </label>
+        <select defaultValue="Filter" className="select">
+          <option disabled={true}>filter</option>
+          <option>Category</option>
+          <option>Status</option>
+          <option>Priority</option>
+        </select>
+      </div>
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {issues.map((issue) => (
           <IssueCard

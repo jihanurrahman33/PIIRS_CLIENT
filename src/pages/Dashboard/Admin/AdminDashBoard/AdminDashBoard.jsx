@@ -26,7 +26,7 @@ export default function AdminDashBoard() {
       const res = await axiosSecure.get("/dashboard/admin/stats");
       return res.data;
     },
-    enabled: !!user, // only when authenticated
+    enabled: !!user,
     staleTime: 1000 * 60 * 2,
   });
 
@@ -66,15 +66,15 @@ export default function AdminDashBoard() {
     qc.invalidateQueries(["admin-latest-users"]);
   };
 
-  // safe destructure
-  const totalSubmitted = stats.totalSubmitted ?? 0;
-  const resolvedCount = stats.resolvedCount ?? 0;
-  const pendingCount = stats.pendingCount ?? 0;
-  const rejectedCount =
-    stats.rejectedCount ?? stats.rawStatusCounts?.rejected ?? 0;
+  // map API fields to local variable names
+  const totalSubmitted = stats.totalIssues ?? 0;
+  const resolvedCount = stats.totalResolvedIssues ?? 0;
+  const pendingCount = stats.totalPendingIssues ?? 0;
+  const rejectedCount = stats.totalRejectedIssues ?? 0;
+
   const paymentsCount = stats.paymentsCount ?? 0;
   const paymentsTotalAmount = stats.paymentsTotalAmount ?? 0;
-  const last7Days = stats.last7Days ?? []; // [{date, count}, ...]
+  const last7Days = stats.last7Days ?? []; // if you later add last7Days on server
 
   const maxVal = Math.max(1, ...last7Days.map((d) => d.count || 0));
 
@@ -139,7 +139,9 @@ export default function AdminDashBoard() {
                   style={{ height: `${((d.count || 0) / maxVal) * 100}%` }}
                   title={`${d.date}: ${d.count || 0}`}
                 />
-                <div className="text-xs mt-2 text-muted">{d.date.slice(5)}</div>
+                <div className="text-xs mt-2 text-muted">
+                  {d.date?.slice(5) ?? ""}
+                </div>
               </div>
             ))}
           </div>
