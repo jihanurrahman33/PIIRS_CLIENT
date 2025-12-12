@@ -161,19 +161,114 @@ export default function ReportIssue() {
   const selectedFile = useMemo(() => watchedImage?.[0] ?? null, [watchedImage]);
   if (isBlcoked) {
     return (
-      <h2 className="text-4xl card text-center text-red-600">
-        You Can't Report any Issue Please contact the Authorities
-      </h2>
+      <div className="min-h-[60vh] flex items-center justify-center p-4">
+        <div className="card bg-base-100 shadow-xl border max-w-lg w-full">
+          <div className="card-body items-center text-center space-y-4">
+            <div className="text-red-600 text-6xl">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-20 w-20 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M12 9v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 
+                1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 
+                18c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+
+            <h2 className="text-2xl font-bold text-red-600">
+              Your Account is Blocked
+            </h2>
+
+            <p className="text-gray-600 text-sm leading-relaxed">
+              You are currently restricted from reporting, editing, or upvoting
+              issues.
+              <br />
+              This action was taken due to violation of our usage policy or
+              suspicious activity.
+            </p>
+
+            <p className="text-gray-500 text-xs italic">
+              If you believe this is a mistake, please contact authorities or
+              our support team.
+            </p>
+
+            <div className="card-actions mt-4">
+              <button
+                className="btn btn-outline btn-error"
+                onClick={() => (window.location.href = "/contact")}
+              >
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   } else if (userPostedTotalIssues >= 3) {
     return (
-      <h2 className="text-4xl card text-center text-red-600 flex flex-col justify-center items-center mt-4">
-        Issues Report Limit Reached. Please Buy Subscription to Post More Issues
-        <br />
-        <Link className="btn btn-primary w-xs mt-4" to={"/dashboard/profile"}>
-          Subscribe Now
-        </Link>
-      </h2>
+      <div className="min-h-[60vh] flex items-center justify-center p-4">
+        <div className="card bg-base-100 shadow-xl border max-w-xl w-full">
+          <div className="card-body text-center space-y-4">
+            {/* Icon */}
+            <div className="text-warning">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-20 w-20 mx-auto text-yellow-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 
+                1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 
+                1.33.19 3 1.73 3z"
+                />
+              </svg>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-2xl font-bold text-yellow-600">
+              Issue Submission Limit Reached
+            </h2>
+
+            {/* Description */}
+            <p className="text-gray-700 text-sm leading-relaxed">
+              You have reached your free limit of{" "}
+              <span className="font-semibold">3 issues</span>.
+              <br />
+              Upgrade to a premium subscription to submit unlimited issues and
+              receive priority support.
+            </p>
+
+            {/* Features */}
+            <div className="text-sm text-gray-500 mt-2">
+              <ul className="space-y-1">
+                <li>✔ Unlimited Issue Submissions</li>
+                <li>✔ Priority Issue Review</li>
+                <li>✔ Faster Response from Staff</li>
+              </ul>
+            </div>
+
+            {/* Subscribe Button */}
+            <div className="card-actions justify-center mt-4">
+              <Link to="/dashboard/profile" className="btn btn-primary w-40">
+                Subscribe Now
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   } else {
     return (
