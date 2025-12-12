@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import useAuth from "./useAuth";
 import { useNavigate } from "react-router";
 const axiosSecure = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://public-infrastructure-issue-reporti-pearl.vercel.app",
 });
 
 const useAxiosSecure = () => {
@@ -38,7 +38,7 @@ const useAxiosSecure = () => {
       axios.interceptors.request.eject(reqInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [user, logOut, navigate]);
+  }, [user, logOut, navigate, token]);
   return axiosSecure;
 };
 

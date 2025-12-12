@@ -148,12 +148,14 @@ export default function ReportIssue() {
     }
   };
   const [isBlcoked, setIsBlcoked] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [userPostedTotalIssues, setuserPostedTotalIssues] = useState(0);
   const disabled = isSubmitting || isUploading;
   useEffect(() => {
-    axiosSecure
-      .get(`/users/${user?.email}/role`)
-      .then((res) => setIsBlcoked(res.data.isBlcoked));
+    axiosSecure.get(`/users/${user?.email}/role`).then((res) => {
+      setIsBlcoked(res.data.isBlcoked);
+      setIsPremium(res.data.isPremium);
+    });
     axiosSecure
       .get(`/my-issues`)
       .then((res) => setuserPostedTotalIssues(res.data.length));
@@ -212,7 +214,7 @@ export default function ReportIssue() {
         </div>
       </div>
     );
-  } else if (userPostedTotalIssues >= 3) {
+  } else if (userPostedTotalIssues >= 3 && !isPremium) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">
         <div className="card bg-base-100 shadow-xl border max-w-xl w-full">
