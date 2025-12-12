@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 import useAxiosSecure from "../../hooks/useAxiosSecure";
@@ -148,18 +148,31 @@ export default function ReportIssue() {
     }
   };
   const [isBlcoked, setIsBlcoked] = useState(false);
-
+  const [userPostedTotalIssues, setuserPostedTotalIssues] = useState(0);
   const disabled = isSubmitting || isUploading;
   useEffect(() => {
     axiosSecure
       .get(`/users/${user?.email}/role`)
       .then((res) => setIsBlcoked(res.data.isBlcoked));
+    axiosSecure
+      .get(`/my-issues`)
+      .then((res) => setuserPostedTotalIssues(res.data.length));
   }, [user?.email, axiosSecure]);
   const selectedFile = useMemo(() => watchedImage?.[0] ?? null, [watchedImage]);
   if (isBlcoked) {
     return (
       <h2 className="text-4xl card text-center text-red-600">
         You Can't Report any Issue Please contact the Authorities
+      </h2>
+    );
+  } else if (userPostedTotalIssues >= 3) {
+    return (
+      <h2 className="text-4xl card text-center text-red-600 flex flex-col justify-center items-center mt-4">
+        Issues Report Limit Reached. Please Buy Subscription to Post More Issues
+        <br />
+        <Link className="btn btn-primary w-xs mt-4" to={"/dashboard/profile"}>
+          Subscribe Now
+        </Link>
       </h2>
     );
   } else {
