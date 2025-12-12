@@ -151,252 +151,265 @@ export default function ReportIssue() {
   const disabled = isSubmitting || isUploading;
 
   const selectedFile = useMemo(() => watchedImage?.[0] ?? null, [watchedImage]);
+  if (user.isBlcoked) {
+    return <h2>You Can't Report any Issue Please contact the Authorities</h2>;
+  } else {
+    return (
+      <div className="min-h-screen bg-base-200 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* LEFT: Form */}
+            <div className="md:col-span-2">
+              <div className="card bg-base-100 shadow-lg border">
+                <div className="card-body">
+                  <h1 className="text-2xl font-semibold mb-1">
+                    Report an Issue
+                  </h1>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Provide a clear title, description, category and an optional
+                    photo so staff can locate and fix the issue quickly.
+                  </p>
 
-  return (
-    <div className="min-h-screen bg-base-200 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* LEFT: Form */}
-          <div className="md:col-span-2">
-            <div className="card bg-base-100 shadow-lg border">
-              <div className="card-body">
-                <h1 className="text-2xl font-semibold mb-1">Report an Issue</h1>
-                <p className="text-sm text-gray-600 mb-4">
-                  Provide a clear title, description, category and an optional
-                  photo so staff can locate and fix the issue quickly.
-                </p>
-
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                  {/* Title */}
-                  <div>
-                    <label className="label">
-                      <span className="label-text font-medium">Title</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="E.g. Broken streetlight near Central Park"
-                      className={`input input-bordered w-full ${
-                        errors.title ? "input-error" : ""
-                      }`}
-                      {...register("title", {
-                        required: "Please enter a title",
-                        minLength: {
-                          value: 8,
-                          message: "Title must be at least 8 characters",
-                        },
-                      })}
-                      disabled={disabled}
-                    />
-                    {errors.title && (
-                      <p className="text-xs text-error mt-1">
-                        {errors.title.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Description
-                      </span>
-                    </label>
-                    <textarea
-                      rows={5}
-                      placeholder="Describe the issue in detail — what, where, how long, safety concerns..."
-                      className={`textarea textarea-bordered w-full ${
-                        errors.description ? "textarea-error" : ""
-                      }`}
-                      {...register("description", {
-                        required: "Please enter a description",
-                        minLength: {
-                          value: 20,
-                          message: "Please add more details (20+ characters)",
-                        },
-                      })}
-                      disabled={disabled}
-                    />
-                    {errors.description && (
-                      <p className="text-xs text-error mt-1">
-                        {errors.description.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Category */}
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    {/* Title */}
                     <div>
                       <label className="label">
-                        <span className="label-text font-medium">Category</span>
-                      </label>
-                      <select
-                        className={`select select-bordered w-full ${
-                          errors.category ? "select-error" : ""
-                        }`}
-                        {...register("category", {
-                          required: "Please select a category",
-                        })}
-                        disabled={disabled}
-                        defaultValue=""
-                      >
-                        <option value="" disabled>
-                          Choose category
-                        </option>
-                        {categories.map((c) => (
-                          <option key={c.value} value={c.value}>
-                            {c.label}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.category && (
-                        <p className="text-xs text-error mt-1">
-                          {errors.category.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Location */}
-                    <div>
-                      <label className="label">
-                        <span className="label-text font-medium">Location</span>
+                        <span className="label-text font-medium">Title</span>
                       </label>
                       <input
                         type="text"
-                        placeholder="Address or short location (e.g. Road 12, Mirpur, Dhaka)"
+                        placeholder="E.g. Broken streetlight near Central Park"
                         className={`input input-bordered w-full ${
-                          errors.location ? "input-error" : ""
+                          errors.title ? "input-error" : ""
                         }`}
-                        {...register("location", {
-                          required: "Please provide a location",
+                        {...register("title", {
+                          required: "Please enter a title",
+                          minLength: {
+                            value: 8,
+                            message: "Title must be at least 8 characters",
+                          },
                         })}
                         disabled={disabled}
                       />
-                      {errors.location && (
+                      {errors.title && (
                         <p className="text-xs text-error mt-1">
-                          {errors.location.message}
+                          {errors.title.message}
                         </p>
                       )}
                     </div>
-                  </div>
 
-                  {/* Image upload */}
-                  <div>
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Upload Image (optional)
-                      </span>
-                    </label>
+                    {/* Description */}
+                    <div>
+                      <label className="label">
+                        <span className="label-text font-medium">
+                          Description
+                        </span>
+                      </label>
+                      <textarea
+                        rows={5}
+                        placeholder="Describe the issue in detail — what, where, how long, safety concerns..."
+                        className={`textarea textarea-bordered w-full ${
+                          errors.description ? "textarea-error" : ""
+                        }`}
+                        {...register("description", {
+                          required: "Please enter a description",
+                          minLength: {
+                            value: 20,
+                            message: "Please add more details (20+ characters)",
+                          },
+                        })}
+                        disabled={disabled}
+                      />
+                      {errors.description && (
+                        <p className="text-xs text-error mt-1">
+                          {errors.description.message}
+                        </p>
+                      )}
+                    </div>
 
-                    <div className="flex items-center gap-3">
-                      <label className="btn btn-outline btn-sm cursor-pointer">
-                        Choose Image
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Category */}
+                      <div>
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Category
+                          </span>
+                        </label>
+                        <select
+                          className={`select select-bordered w-full ${
+                            errors.category ? "select-error" : ""
+                          }`}
+                          {...register("category", {
+                            required: "Please select a category",
+                          })}
+                          disabled={disabled}
+                          defaultValue=""
+                        >
+                          <option value="" disabled>
+                            Choose category
+                          </option>
+                          {categories.map((c) => (
+                            <option key={c.value} value={c.value}>
+                              {c.label}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.category && (
+                          <p className="text-xs text-error mt-1">
+                            {errors.category.message}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Location */}
+                      <div>
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Location
+                          </span>
+                        </label>
                         <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          {...register("image")}
+                          type="text"
+                          placeholder="Address or short location (e.g. Road 12, Mirpur, Dhaka)"
+                          className={`input input-bordered w-full ${
+                            errors.location ? "input-error" : ""
+                          }`}
+                          {...register("location", {
+                            required: "Please provide a location",
+                          })}
                           disabled={disabled}
                         />
-                      </label>
-
-                      <div className="text-sm text-gray-600">
-                        {selectedFile ? (
-                          <div>
-                            <div className="font-medium">
-                              {selectedFile.name}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                              • {selectedFile.type}
-                            </div>
-                          </div>
-                        ) : (
-                          <div>No image selected</div>
+                        {errors.location && (
+                          <p className="text-xs text-error mt-1">
+                            {errors.location.message}
+                          </p>
                         )}
                       </div>
                     </div>
 
-                    {errors.image && (
-                      <p className="text-xs text-error mt-2">
-                        {errors.image.message}
-                      </p>
-                    )}
+                    {/* Image upload */}
+                    <div>
+                      <label className="label">
+                        <span className="label-text font-medium">
+                          Upload Image (optional)
+                        </span>
+                      </label>
 
-                    {previewUrl && (
-                      <div className="mt-3">
-                        <div className="rounded-md overflow-hidden border w-56 h-36">
-                          <img
-                            src={previewUrl}
-                            alt="preview"
-                            className="object-cover w-full h-full"
+                      <div className="flex items-center gap-3">
+                        <label className="btn btn-outline btn-sm cursor-pointer">
+                          Choose Image
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            {...register("image")}
+                            disabled={disabled}
                           />
+                        </label>
+
+                        <div className="text-sm text-gray-600">
+                          {selectedFile ? (
+                            <div>
+                              <div className="font-medium">
+                                {selectedFile.name}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {(selectedFile.size / 1024 / 1024).toFixed(2)}{" "}
+                                MB • {selectedFile.type}
+                              </div>
+                            </div>
+                          ) : (
+                            <div>No image selected</div>
+                          )}
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Preview — image will be uploaded to ImgBB when you
-                          submit.
-                        </p>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Submit */}
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      className={`btn btn-primary w-full ${
-                        disabled ? "opacity-70 cursor-not-allowed" : ""
-                      }`}
-                      disabled={disabled}
-                    >
-                      {isUploading
-                        ? "Uploading..."
-                        : isSubmitting
-                        ? "Submitting..."
-                        : "Report Issue"}
-                    </button>
-                  </div>
-                </form>
+                      {errors.image && (
+                        <p className="text-xs text-error mt-2">
+                          {errors.image.message}
+                        </p>
+                      )}
+
+                      {previewUrl && (
+                        <div className="mt-3">
+                          <div className="rounded-md overflow-hidden border w-56 h-36">
+                            <img
+                              src={previewUrl}
+                              alt="preview"
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Preview — image will be uploaded to ImgBB when you
+                            submit.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Submit */}
+                    <div className="pt-4">
+                      <button
+                        type="submit"
+                        className={`btn btn-primary w-full ${
+                          disabled ? "opacity-70 cursor-not-allowed" : ""
+                        }`}
+                        disabled={disabled}
+                      >
+                        {isUploading
+                          ? "Uploading..."
+                          : isSubmitting
+                          ? "Submitting..."
+                          : "Report Issue"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Tips card */}
+            <div>
+              <div className="card bg-base-100 shadow border p-4 sticky top-24">
+                <h3 className="font-semibold mb-2">Tips for good reports</h3>
+                <ul className="list-disc list-inside text-sm text-gray-700 space-y-2">
+                  <li>
+                    Write a clear title that explains the problem briefly.
+                  </li>
+                  <li>
+                    Include exact location (landmark, road number) to help staff
+                    find it faster.
+                  </li>
+                  <li>
+                    Attach a recent photo showing the problem (if available).
+                  </li>
+                  <li>
+                    Small, clear photos are better than huge, blurry ones.
+                  </li>
+                  <li>
+                    If the issue is urgent (safety), mark it in the description.
+                  </li>
+                </ul>
+
+                <div className="divider" />
+
+                <div className="text-sm">
+                  <p className="font-medium">Image limits</p>
+                  <p className="text-gray-600">
+                    Max: 5MB. Allowed: JPG, PNG, WEBP. Images uploaded to ImgBB.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT: Tips card */}
-          <div>
-            <div className="card bg-base-100 shadow border p-4 sticky top-24">
-              <h3 className="font-semibold mb-2">Tips for good reports</h3>
-              <ul className="list-disc list-inside text-sm text-gray-700 space-y-2">
-                <li>Write a clear title that explains the problem briefly.</li>
-                <li>
-                  Include exact location (landmark, road number) to help staff
-                  find it faster.
-                </li>
-                <li>
-                  Attach a recent photo showing the problem (if available).
-                </li>
-                <li>Small, clear photos are better than huge, blurry ones.</li>
-                <li>
-                  If the issue is urgent (safety), mark it in the description.
-                </li>
-              </ul>
-
-              <div className="divider" />
-
-              <div className="text-sm">
-                <p className="font-medium">Image limits</p>
-                <p className="text-gray-600">
-                  Max: 5MB. Allowed: JPG, PNG, WEBP. Images uploaded to ImgBB.
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* small footer note */}
+          <p className="text-xs text-gray-500 text-center mt-6">
+            Note: Free users can report up to 3 issues. If you reach the limit,
+            upgrade to premium in your profile.
+          </p>
         </div>
-
-        {/* small footer note */}
-        <p className="text-xs text-gray-500 text-center mt-6">
-          Note: Free users can report up to 3 issues. If you reach the limit,
-          upgrade to premium in your profile.
-        </p>
       </div>
-    </div>
-  );
+    );
+  }
 }
