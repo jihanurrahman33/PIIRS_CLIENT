@@ -147,12 +147,21 @@ export default function ReportIssue() {
       setIsUploading(false);
     }
   };
+  const [isBlcoked, setIsBlcoked] = useState(false);
 
   const disabled = isSubmitting || isUploading;
-
+  useEffect(() => {
+    axiosSecure
+      .get(`/users/${user?.email}/role`)
+      .then((res) => setIsBlcoked(res.data.isBlcoked));
+  }, [user?.email, axiosSecure]);
   const selectedFile = useMemo(() => watchedImage?.[0] ?? null, [watchedImage]);
-  if (user.isBlcoked) {
-    return <h2>You Can't Report any Issue Please contact the Authorities</h2>;
+  if (isBlcoked) {
+    return (
+      <h2 className="text-4xl card text-center text-red-600">
+        You Can't Report any Issue Please contact the Authorities
+      </h2>
+    );
   } else {
     return (
       <div className="min-h-screen bg-base-200 py-12 px-4">
