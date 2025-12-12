@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import useAuth from "../../hooks/useAuth";
-import { toast } from "react-toastify";
 
 export default function IssueCard({ issue = {}, onUpvote, onView }) {
   const { user } = useAuth();
