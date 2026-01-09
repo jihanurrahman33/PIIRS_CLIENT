@@ -21,174 +21,143 @@ export default function IssueCard({ issue = {}, onUpvote, onView }) {
 
   // helper formats
   const imageSrc =
-    images && images.length > 0 ? images[0] : "/placeholder-issue.jpg";
+    images && images.length > 0 ? images[0] : "https://placehold.co/600x400?text=No+Image";
   const shortDesc =
-    description.length > 140 ? description.slice(0, 137) + "..." : description;
-  const dateText = createdAt ? new Date(createdAt).toLocaleString() : "Unknown";
+    description.length > 100 ? description.slice(0, 97) + "..." : description;
+  const dateText = createdAt ? new Date(createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : "Unknown";
 
-  // category & status color maps (easy to customize)
+  // category & status color maps
   const categoryMap = {
-    road: "bg-yellow-100 text-yellow-800",
+    road: "bg-amber-100 text-amber-800",
     lighting: "bg-indigo-100 text-indigo-800",
-    water: "bg-cyan-100 text-cyan-800",
+    water: "bg-blue-100 text-blue-800",
     garbage: "bg-emerald-100 text-emerald-800",
     sidewalk: "bg-rose-100 text-rose-800",
     other: "bg-gray-100 text-gray-800",
   };
+  
   const statusMap = {
-    pending: "bg-orange-100 text-orange-800",
-    in_progress: "bg-yellow-100 text-yellow-800",
-    resolved: "bg-green-100 text-green-800",
-    closed: "bg-gray-100 text-gray-800",
+    pending: "bg-orange-100 text-orange-700 ring-1 ring-orange-200",
+    in_progress: "bg-blue-100 text-blue-700 ring-1 ring-blue-200",
+    resolved: "bg-green-100 text-green-700 ring-1 ring-green-200",
+    closed: "bg-gray-100 text-gray-700 ring-1 ring-gray-200",
   };
+
   const priorityMap = {
-    low: "text-green-600",
-    normal: "text-gray-700",
-    high: "text-red-600 font-semibold",
+    low: "text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs font-medium",
+    normal: "text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full text-xs font-medium",
+    high: "text-red-600 bg-red-50 px-2 py-0.5 rounded-full text-xs font-medium",
   };
 
   const catClass = categoryMap[category] || categoryMap.other;
-  const statClass = statusMap[status] || "bg-gray-100 text-gray-800";
+  const statClass = statusMap[status] || statusMap.pending;
   const prClass = priorityMap[priority] || priorityMap.normal;
 
   return (
     <article
-      key={_id}
-      className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow max-w-sm w-full"
+      className="group flex flex-col h-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-gray-200 transition-all duration-200"
       role="article"
       aria-labelledby={`issue-${_id}-title`}
     >
-      {/* Image hero with overlay badges */}
-      <div className="relative w-full h-56 bg-gray-100">
+      {/* Image Container */}
+      <div className="relative w-full aspect-[4/3] bg-gray-50 overflow-hidden">
         <img
           src={imageSrc}
           alt={title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-
-        {/* overlays */}
-        <div className="absolute top-3 left-3 flex items-center gap-2">
-          <span
-            className={`px-2 py-1 text-xs font-medium rounded ${catClass} shadow-sm`}
-          >
-            {category?.toUpperCase()}
-          </span>
-          <span
-            className={`px-2 py-1 text-xs font-medium rounded ${statClass} shadow-sm`}
-          >
-            {status?.replace("_", " ").toUpperCase()}
-          </span>
+        
+        {/* Overlays */}
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+            <span className={`px-2.5 py-1 text-xs font-semibold rounded-md shadow-sm backdrop-blur-sm bg-white/90 ${catClass.split(' ')[1]}`}>
+               {category?.charAt(0).toUpperCase() + category?.slice(1)}
+            </span>
         </div>
 
-        {isBoosted && (
-          <div className="absolute top-3 right-3">
-            <span className="px-2 py-1 bg-red-600 text-white text-xs font-semibold rounded shadow">
-              BOOSTED
+        <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+            {isBoosted && (
+                <span className="px-2 py-0.5 bg-red-600 text-white text-[10px] uppercase font-bold tracking-wider rounded shadow-sm">
+                    Boosted
+                </span>
+            )}
+             <span className={`px-2.5 py-1 text-xs font-semibold rounded-md shadow-sm ${statClass}`}>
+                {status?.replace("_", " ").toUpperCase()}
             </span>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Body */}
-      <div className="p-4 flex flex-col gap-3">
-        {/* Title */}
-        <h3
-          id={`issue-${_id}-title`}
-          className="text-lg font-semibold text-slate-900 line-clamp-2"
-        >
-          {title}
-        </h3>
-
-        {/* Description */}
-        <p className="text-sm text-gray-600">{shortDesc}</p>
-
-        {/* Meta row */}
-        <div className="flex items-center justify-between gap-3 text-xs text-gray-500">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <svg
-                className="w-4 h-4 text-gray-400"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0118 0z"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="12" cy="10" r="2.2" fill="currentColor" />
-              </svg>
-              <span className="max-w-[10rem] truncate">{location}</span>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <svg
-                className="w-4 h-4 text-gray-400"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5z"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M21 21v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="truncate">{createdBy || "Anonymous"}</span>
-            </div>
-          </div>
-
-          <div className="text-right">
-            <div className={`text-xs ${prClass}`}>
-              {priority?.toUpperCase()}
-            </div>
-            <div className="text-[11px] text-gray-400">{dateText}</div>
-          </div>
-        </div>
-
-        {/* Actions row */}
-        <div className="pt-2 flex items-center justify-between gap-3">
-          <button
-            onClick={() => onUpvote?.(issue)}
-            disabled={issue.createdBy === user?.email}
-            aria-label="Upvote"
-            className="btn inline-flex items-center gap-2 px-3 py-2 rounded-md border hover:bg-gray-50 transition text-sm"
-          >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
+      {/* Content Body */}
+      <div className="flex-1 p-5 flex flex-col gap-4">
+        <div className="space-y-2">
+             <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {dateText}
+                </span>
+                 <span className={prClass}>
+                    {priority?.charAt(0).toUpperCase() + priority?.slice(1)}
+                </span>
+             </div>
+            
+            <h3
+            id={`issue-${_id}-title`}
+            className="text-lg font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors"
             >
-              <path d="M12 21V9" strokeLinecap="round" strokeLinejoin="round" />
-              <path
-                d="M5 12l7-7 7 7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span>{upvotes ?? 0}</span>
-          </button>
-
-          <button
-            onClick={() => onView?.(issue)}
-            aria-label="View details"
-            className="btn btn-primary btn-sm"
-          >
-            View detail
-          </button>
+            {title}
+            </h3>
+            
+            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                {shortDesc}
+            </p>
         </div>
+
+        {/* Location & Author */}
+        <div className="mt-auto pt-4 border-t border-gray-100 grid grid-cols-2 gap-4 text-xs text-gray-500">
+             <div className="flex items-center gap-1.5 truncate">
+                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="truncate" title={location}>{location}</span>
+             </div>
+             <div className="flex items-center gap-1.5 justify-end truncate">
+                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="truncate">Citizen</span>
+             </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between gap-3">
+        <button
+          onClick={() => onUpvote?.(issue)}
+          disabled={issue.createdBy === user?.email}
+          aria-label="Upvote"
+          className="btn btn-sm btn-ghost gap-2 text-gray-600 hover:text-primary hover:bg-primary/5 disabled:bg-transparent"
+        >
+          <svg
+            className={`w-5 h-5 ${upvotes > 0 ? 'fill-current text-primary' : ''}`}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+          <span className="font-semibold">{upvotes ?? 0}</span>
+        </button>
+
+        <button
+          onClick={() => onView?.(issue)}
+          aria-label="View details"
+          className="btn btn-primary btn-sm px-6 shadow-sm shadow-primary/20 hover:shadow-primary/40"
+        >
+          View Details
+        </button>
       </div>
     </article>
   );
@@ -199,3 +168,4 @@ IssueCard.propTypes = {
   onUpvote: PropTypes.func,
   onView: PropTypes.func,
 };
+
