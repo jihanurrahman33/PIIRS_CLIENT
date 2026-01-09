@@ -30,30 +30,37 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
+        handle: { title: "Home" },
       },
       {
         path: "get-started",
         Component: GetStarted,
+        handle: { title: "Get Started" },
       },
       {
         path: "login",
         Component: Login,
+        handle: { title: "Login" },
       },
       {
         path: "register",
         Component: Register,
+        handle: { title: "Register" },
       },
       {
         path: "all-issues",
         element: <Issues />,
+        handle: { title: "All Issues" },
       },
       {
         path: "about",
         element: <About />,
+        handle: { title: "About" },
       },
       {
         path: "contact",
         element: <Contact />,
+        handle: { title: "Contact" },
       },
       {
         path: "report-issue",
@@ -62,6 +69,7 @@ export const router = createBrowserRouter([
             <ReportIssue />
           </PrivateRoute>
         ),
+        handle: { title: "Report Issue" },
       },
       {
         path: "issue-details/:id",
@@ -70,6 +78,7 @@ export const router = createBrowserRouter([
             <IssueDetails />
           </PrivateRoute>
         ),
+        handle: { title: "Issue Details" },
       },
     ],
   },
@@ -80,18 +89,22 @@ export const router = createBrowserRouter([
         <DashBoardLayout></DashBoardLayout>
       </PrivateRoute>
     ),
+    handle: { title: "Dashboard" },
     children: [
       {
         index: true,
         element: <DashBoard></DashBoard>,
+        handle: { title: "Dashboard" },
       },
       {
         path: "profile",
         element: <Profile></Profile>,
+        handle: { title: "Profile" },
       },
       {
         path: "my-issues",
         element: <MyIssues></MyIssues>,
+        handle: { title: "My Issues" },
       },
       {
         path: "manage-staff",
@@ -100,6 +113,7 @@ export const router = createBrowserRouter([
             <ManageStaff></ManageStaff>
           </AdminRoute>
         ),
+        handle: { title: "Manage Staff" },
       },
       {
         path: "manage-citizens",
@@ -108,6 +122,7 @@ export const router = createBrowserRouter([
             <ManageCitizens></ManageCitizens>
           </AdminRoute>
         ),
+        handle: { title: "Manage Citizens" },
       },
       {
         path: "all-issues",
@@ -116,6 +131,7 @@ export const router = createBrowserRouter([
             <AllIssues></AllIssues>
           </AdminRoute>
         ),
+        handle: { title: "All Issues" },
       },
       {
         path: "assigned-issues",
@@ -124,6 +140,7 @@ export const router = createBrowserRouter([
             <AssignedIssues></AssignedIssues>
           </StaffRoute>
         ),
+        handle: { title: "Assigned Issues" },
       },
     ],
   },

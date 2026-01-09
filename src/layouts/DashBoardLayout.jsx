@@ -7,12 +7,14 @@ import { MdAssignment } from "react-icons/md";
 import { RiFolderWarningLine } from "react-icons/ri";
 import { RiCommunityLine } from "react-icons/ri";
 import Logo from "../components/Logo/Logo";
+import RouteTitle from "../components/RouteTitle/RouteTitle";
 
 const DashBoardLayout = () => {
   const { role } = useRole();
 
   return (
     <div>
+      <RouteTitle />
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
