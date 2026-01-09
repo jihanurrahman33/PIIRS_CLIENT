@@ -1,162 +1,151 @@
-import React from "react";
-import { Link, Outlet } from "react-router";
-import { GoIssueTrackedBy } from "react-icons/go";
-import { RiTeamLine } from "react-icons/ri";
-import useRole from "../hooks/useRole";
+import React, { useState } from "react";
+import { Link, NavLink, Outlet } from "react-router";
+import { 
+  GoIssueTrackedBy, 
+  GoHome 
+} from "react-icons/go";
+import { 
+  RiTeamLine, 
+  RiFolderWarningLine, 
+  RiCommunityLine, 
+  RiMenuLine, 
+  RiCloseLine 
+} from "react-icons/ri";
 import { MdAssignment } from "react-icons/md";
-import { RiFolderWarningLine } from "react-icons/ri";
-import { RiCommunityLine } from "react-icons/ri";
+import useRole from "../hooks/useRole";
 import Logo from "../components/Logo/Logo";
 import RouteTitle from "../components/RouteTitle/RouteTitle";
 
 const DashBoardLayout = () => {
   const { role } = useRole();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
+
+  // Helper to standardise link styles
+  const NavItem = ({ to, icon: Icon, children }) => (
+    <NavLink
+      to={to}
+      onClick={closeSidebar}
+      end={to === "/dashboard"} // Only exact match for root dashboard
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-medium ${
+          isActive
+            ? "bg-primary text-white shadow-md shadow-primary/30"
+            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        }`
+      }
+    >
+      <Icon className="text-xl" />
+      <span>{children}</span>
+    </NavLink>
+  );
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50 flex">
       <RouteTitle />
-      <div className="drawer lg:drawer-open">
-        <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
-          {/* Navbar */}
-          <nav className="navbar w-full bg-base-300">
-            <label
-              htmlFor="my-drawer-4"
-              aria-label="open sidebar"
-              className="btn btn-square btn-ghost"
+      
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside 
+        className={`
+          fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 shadow-xl lg:shadow-none transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+      >
+        <div className="h-full flex flex-col">
+          {/* Sidebar Header */}
+          <div className="h-16 flex items-center px-6 border-b border-gray-100">
+            <Logo />
+            <button 
+              onClick={closeSidebar}
+              className="ml-auto lg:hidden text-gray-500 hover:text-gray-700"
             >
-              {/* Sidebar toggle icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                strokeWidth="2"
-                fill="none"
-                stroke="currentColor"
-                className="my-1.5 inline-block size-4"
-              >
-                <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                <path d="M9 4v16"></path>
-                <path d="M14 10l2 2l-2 2"></path>
-              </svg>
-            </label>
-            <Logo></Logo>
-          </nav>
-          {/* Page content here */}
-          <div className="p-4">
-            <Outlet></Outlet>
+              <RiCloseLine size={24} />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-1">
+            <NavItem to="/dashboard" icon={GoHome}>
+              Overview
+            </NavItem>
+
+            <div className="pt-4 pb-2">
+              <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Management
+              </p>
+            </div>
+
+            <NavItem to="/dashboard/my-issues" icon={GoIssueTrackedBy}>
+              My Issues
+            </NavItem>
+
+            {role === "staff" && (
+              <NavItem to="/dashboard/assigned-issues" icon={MdAssignment}>
+                Assigned Issues
+              </NavItem>
+            )}
+
+            {role === "admin" && (
+              <>
+                <NavItem to="/dashboard/manage-staff" icon={RiTeamLine}>
+                  Manage Staff
+                </NavItem>
+                <NavItem to="/dashboard/all-issues" icon={RiFolderWarningLine}>
+                  All Issues
+                </NavItem>
+                <NavItem to="/dashboard/manage-citizens" icon={RiCommunityLine}>
+                  Manage Citizens
+                </NavItem>
+              </>
+            )}
+            
+             <div className="pt-4 pb-2">
+              <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                System
+              </p>
+            </div>
+             <div className="px-4 py-3">
+                 <Link to="/" className="btn btn-outline btn-sm w-full font-medium">
+                     Back to Home
+                 </Link>
+             </div>
+          </div>
+
+          {/* User Profile / Footer (Optional - placeholder) */}
+          <div className="p-4 border-t border-gray-100">
+             {/* Could add mini user profile here */}
           </div>
         </div>
+      </aside>
 
-        <div className="drawer-side is-drawer-close:overflow-visible">
-          <label
-            htmlFor="my-drawer-4"
-            aria-label="close sidebar"
-            className="drawer-overlay"
-          ></label>
-          <div className="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
-            {/* Sidebar content here */}
-            <ul className="menu w-full grow">
-              {/* List item */}
-              <li>
-                <Link
-                  to={"/dashboard"}
-                  className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                  data-tip="Homepage"
-                >
-                  {/* Home icon */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                    strokeWidth="2"
-                    fill="none"
-                    stroke="currentColor"
-                    className="my-1.5 inline-block size-4"
-                  >
-                    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
-                    <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                  </svg>
-                  <span className="is-drawer-close:hidden">Homepage</span>
-                </Link>
-              </li>
-              {/* staff role  */}
-              {role === "staff" && (
-                <li>
-                  <Link
-                    to={"/dashboard/assigned-issues"}
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Assigned Issues"
-                  >
-                    <MdAssignment />
-                    <span className="is-drawer-close:hidden">
-                      Assigned Issues
-                    </span>
-                  </Link>
-                </li>
-              )}
-
-              {/*Admin Route */}
-              {role === "admin" && (
-                <>
-                  <li>
-                    <Link
-                      to={"/dashboard/manage-staff"}
-                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                      data-tip="Manage Staff"
-                    >
-                      {/* My Issues icon */}
-                      <RiTeamLine />
-                      <span className="is-drawer-close:hidden">
-                        Manage Staff
-                      </span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to={"/dashboard/all-issues"}
-                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                      data-tip="All Issues"
-                    >
-                      {/* My Issues icon */}
-                      <RiFolderWarningLine />
-                      <span className="is-drawer-close:hidden">All Issues</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to={"/dashboard/manage-citizens"}
-                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                      data-tip="Manage Citizens"
-                    >
-                      {/* My Issues icon */}
-                      <RiCommunityLine />
-                      <span className="is-drawer-close:hidden">
-                        Manage Citizens
-                      </span>
-                    </Link>
-                  </li>
-                </>
-              )}
-
-              {/* List item */}
-              <li>
-                <Link
-                  to={"/dashboard/my-issues"}
-                  className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                  data-tip="My Issues"
-                >
-                  {/* My Issues icon */}
-                  <GoIssueTrackedBy />
-                  <span className="is-drawer-close:hidden">My Issues</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64 flex flex-col min-h-screen transition-all duration-300">
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 h-16 flex items-center justify-between sticky top-0 z-30">
+          <Logo />
+          <button 
+            onClick={toggleSidebar}
+            className="p-2 -mr-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <RiMenuLine size={24} />
+          </button>
         </div>
-      </div>
+
+        {/* Page Content */}
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+          <Outlet />
+        </div>
+      </main>
     </div>
   );
 };
