@@ -179,9 +179,8 @@ const NavBar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-               {/* Optional: Add Login button if you have a separate login page distinct from Get Started */}
-              <Link to="/get-started" className="btn btn-primary btn-sm px-5 font-normal">
-                Get Started
+              <Link to="/auth/login" className="btn btn-primary btn-sm px-5 font-normal">
+                Join Us
               </Link>
             </div>
           )}
@@ -192,4 +191,3 @@ const NavBar = () => {
 };
 
 export default NavBar;
-

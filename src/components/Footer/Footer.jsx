@@ -12,9 +12,6 @@ const Footer = () => {
         <div className="space-y-4">
           <Logo />
           <div className="space-y-2">
-            <h3 className="text-lg font-bold text-gray-900">
-              PIIRS
-            </h3>
             <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
               Empowering citizens to report infrastructure issues and helping authorities build smarter, safer cities together.
             </p>

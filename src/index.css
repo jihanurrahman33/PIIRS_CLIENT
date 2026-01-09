@@ -1,27 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
+@plugin "daisyui";
 
 @theme {
-  --font-sans: "Inter", sans-serif;
+  --color-primary: #2463eb;
+  --color-brand-emerald: #10B981;
+  --color-brand-slate: #1E293B;
+  --font-display: "Inter", sans-serif;
+}
+
+@layer utilities {
+    .glass-effect {
+        @apply bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm sticky top-0 z-50;
+    }
+    
+    .logo-tracking {
+        letter-spacing: 0.15em;
+    }
+
+    .nav-link-active {
+        @apply text-brand-slate relative font-semibold;
+    }
+    
+    .nav-link-active::after {
+        content: '';
+        @apply absolute -bottom-[29px] left-0 w-full h-[3px] bg-brand-emerald rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)];
+    }
 }
 
 :root {
   font-family: "Inter", sans-serif;
-}
-
-@plugin "daisyui" {
-  themes: light --default, dark;
-}
-
-@plugin "daisyui/theme" {
-  name: "light";
-  default: true;
-  --color-primary: #2563EB; 
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-base-100: #f8fafc; 
-  --color-base-200: #f1f5f9;
-  --color-base-300: #e2e8f0;
-  --radius-selector: 0.5rem;
 }

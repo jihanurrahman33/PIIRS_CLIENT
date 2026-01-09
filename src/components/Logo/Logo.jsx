@@ -1,10 +1,11 @@
 import React from "react";
-import logoImg from "../../assets/logo.png";
 import { Link } from "react-router";
+
 const Logo = () => {
   return (
-    <Link to={"/"}>
-      <img className="btn btn-ghost text-xl w-30 h-15" src={logoImg} />
+    <Link to="/" className="flex items-center text-2xl group transition-transform hover:scale-[1.02]">
+      <span className="font-black text-brand-emerald text-3xl">P</span>
+      <span className="font-medium text-brand-slate logo-tracking ml-0.5">IIRS</span>
     </Link>
   );
 };
