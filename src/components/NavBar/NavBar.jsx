@@ -171,7 +171,7 @@ const NavBar = () => {
                         setOpen(false);
                       }}
                     >
-                      <span>Sign details out</span>
+                      <span>Sign out</span>
                     </button>
                   </div>
                 </div>
@@ -179,8 +179,11 @@ const NavBar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link to="/auth/login" className="btn btn-primary btn-sm px-5 font-normal">
-                Join Us
+              <Link to="/login" className="btn btn-primary btn-sm px-5 font-normal">
+                Login
+              </Link>
+              <Link to="/register" className="btn btn-primary btn-sm px-5 font-normal">
+                Register
               </Link>
             </div>
           )}

@@ -23,7 +23,7 @@ const useAxiosSecure = () => {
       },
       (error) => {
         console.log(error);
-        const statusCode = error.status;
+        const statusCode = error.response?.status || error.status;
         if (statusCode === 401 || statusCode === 403) {
           logOut().then(() => {
             navigate("/login");
@@ -35,8 +35,8 @@ const useAxiosSecure = () => {
 
     //interceptor request
     return () => {
-      axios.interceptors.request.eject(reqInterceptor);
-      axios.interceptors.response.eject(responseInterceptor);
+      axiosSecure.interceptors.request.eject(reqInterceptor);
+      axiosSecure.interceptors.response.eject(responseInterceptor);
     };
   }, [user, logOut, navigate, token]);
   return axiosSecure;

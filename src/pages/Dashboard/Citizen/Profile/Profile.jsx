@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import { FaUser, FaCrown, FaHistory, FaMapMarkerAlt, FaPhone, FaCamera, FaSave, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import useAuth from "../../../../hooks/useAuth";
 import useAxiosSecure from "../../../../hooks/useAxiosSecure";
 
@@ -273,6 +274,10 @@ export default function Profile() {
     }
   };
 
+  if (loading) {
+    return <ProfileSkeleton />;
+  }
+
   if (!user) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -296,222 +301,275 @@ export default function Profile() {
     : Math.max(0, countInfo.limit - countInfo.count);
 
   return (
-    <div className="min-h-screen bg-base-200 py-10 px-4">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="col-span-1">
-          <div className="card bg-base-100 shadow border">
-            <div className="card-body text-center">
-              <div className="avatar mx-auto">
-                <div className="w-28 h-28 rounded-full overflow-hidden">
-                  <img
-                    src={user.photoURL || "/avatar-placeholder.png"}
-                    alt={user.displayName || user.email}
-                  />
-                </div>
-              </div>
+    <div className="min-h-screen bg-slate-50 py-10 px-4 lg:px-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Left Sidebar: Review Card */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative group">
+            <div className="h-32 bg-brand-slate relative">
+               <div className="absolute inset-0 bg-brand-emerald/10"></div>
+            </div>
+            
+            <div className="px-6 pb-8 text-center -mt-12 relative">
+               <div className="w-24 h-24 rounded-full border-4 border-white shadow-md mx-auto overflow-hidden bg-slate-100 mb-4">
+                  <img src={user.photoURL || "https://i.ibb.co/7CQVJNm/default-avatar.png"} alt="Profile" className="w-full h-full object-cover" />
+               </div>
+               
+               <h2 className="text-2xl font-bold text-gray-900 mb-1">{user.displayName || "Citizen"}</h2>
+               <p className="text-gray-500 text-sm mb-6">{user.email}</p>
 
-              <h2 className="text-xl font-semibold mt-3">
-                {user.displayName || "No name"}
-              </h2>
-              <p className="text-sm text-gray-500">{user.email}</p>
+               <div className="flex items-center justify-center gap-2 mb-6">
+                  {countInfo.isPremium ? (
+                    <span className="badge badge-success gap-2 py-3 px-4 text-white font-semibold">
+                       <FaCrown /> Premium Member
+                    </span>
+                  ) : (
+                    <span className="badge badge-ghost gap-2 py-3 px-4 text-gray-600 bg-slate-100">
+                       Free Plan
+                    </span>
+                  )}
+               </div>
 
-              <div className="divider" />
+               <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+                  <div className="text-center">
+                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Reports</p>
+                     <p className="text-2xl font-bold text-brand-slate">{countInfo.count}</p>
+                  </div>
+                  <div className="text-center border-l border-slate-100">
+                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Remaining</p>
+                     <p className="text-2xl font-bold text-brand-emerald">{remaining}</p>
+                  </div>
+               </div>
 
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span>Subscription</span>
-                  <span
-                    className={
-                      countInfo.isPremium
-                        ? "text-green-600 font-medium"
-                        : "text-gray-600"
-                    }
-                  >
-                    {countInfo.isPremium ? "Premium" : "Free"}
-                  </span>
-                </div>
+               {!countInfo.isPremium && (
+                 <div className="mt-8">
+                    <button 
+                       onClick={handleSubscribe} 
+                       disabled={subscribing}
+                       className="btn btn-primary w-full shadow-lg shadow-primary/20"
+                    >
+                       <FaCrown className="mr-2" />
+                       {subscribing ? "Processing..." : "Upgrade to Premium"}
+                    </button>
+                    <p className="text-xs text-center text-gray-500 mt-3">Unlock unlimited reports & priority support.</p>
+                 </div>
+               )}
 
-                <div className="flex items-center justify-between">
-                  <span>Issues reported</span>
-                  <span className="font-medium">{countInfo.count}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span>Remaining (free)</span>
-                  <span>{remaining}</span>
-                </div>
-              </div>
-
-              <div className="card-actions justify-center mt-4">
-                <button
-                  className="btn btn-outline"
-                  onClick={() => navigate("/dashboard/my-issues")}
-                >
-                  My Issues
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleSubscribe}
-                  disabled={subscribing || countInfo.isPremium}
-                >
-                  {subscribing ? "Redirecting..." : "Subscribe"}
-                </button>
-              </div>
-
-              <div className="mt-4">
-                <button className="btn btn-ghost w-full" onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
+               <button onClick={handleLogout} className="btn btn-ghost btn-sm w-full mt-4 text-error hover:bg-error/10">
+                  <FaSignOutAlt className="mr-2" /> Sign Out
+               </button>
             </div>
           </div>
         </div>
 
-        <div className="col-span-2">
-          <div className="card bg-base-100 shadow border">
-            <div className="card-body">
-              <h3 className="text-xl font-semibold mb-2">Edit Profile</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Update your display name, phone number and address. These values
-                will be saved to your profile.
-              </p>
-
-              <form
-                onSubmit={handleSubmit(onSave)}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
+        {/* Right Content: Edit Form & Activity */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* Edit Profile */}
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+             <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-brand-emerald/10 flex items-center justify-center text-brand-emerald">
+                   <FaUser />
+                </div>
                 <div>
-                  <label className="label">
-                    <span className="label-text">Name</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Full name"
-                    className="input input-bordered w-full"
-                    {...register("name")}
-                  />
+                   <h3 className="text-xl font-bold text-gray-900">Profile Settings</h3>
+                   <p className="text-sm text-gray-500">Update your personal information</p>
+                </div>
+             </div>
+
+             <form onSubmit={handleSubmit(onSave)} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                   <div className="form-control">
+                      <label className="label">
+                         <span className="label-text font-medium text-gray-700">Full Name</span>
+                      </label>
+                      <div className="relative">
+                         <input 
+                           type="text" 
+                           className="input input-bordered w-full pl-10 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald" 
+                           placeholder="John Doe"
+                           {...register("name")}
+                        />
+                        <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                      </div>
+                   </div>
+
+                   <div className="form-control">
+                      <label className="label">
+                         <span className="label-text font-medium text-gray-700">Phone Number</span>
+                      </label>
+                      <div className="relative">
+                         <input 
+                           type="tel" 
+                           className="input input-bordered w-full pl-10 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald" 
+                           placeholder="+880..."
+                           {...register("phone")}
+                        />
+                        <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                      </div>
+                   </div>
                 </div>
 
-                <div>
-                  <label className="label">
-                    <span className="label-text">Phone</span>
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="017XXXXXXXX"
-                    className="input input-bordered w-full"
-                    {...register("phone")}
-                  />
+                <div className="form-control">
+                   <label className="label">
+                      <span className="label-text font-medium text-gray-700">Address</span>
+                   </label>
+                   <div className="relative">
+                      <input 
+                        type="text" 
+                        className="input input-bordered w-full pl-10 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald" 
+                        placeholder="123 Street, City"
+                        {...register("address")}
+                     />
+                     <FaMapMarkerAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                   </div>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="label">
-                    <span className="label-text">Address</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Dhaka, Bangladesh"
-                    className="input input-bordered w-full"
-                    {...register("address")}
-                  />
+                <div className="form-control">
+                   <label className="label">
+                      <span className="label-text font-medium text-gray-700">Profile Photo URL</span>
+                   </label>
+                   <div className="relative">
+                      <input 
+                        type="url" 
+                        className="input input-bordered w-full pl-10 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald" 
+                        placeholder="https://..."
+                        {...register("photoURL")}
+                     />
+                     <FaCamera className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                   </div>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="label">
-                    <span className="label-text">Photo URL</span>
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    className="input input-bordered w-full"
-                    {...register("photoURL")}
-                  />
-                </div>
-
-                <div className="md:col-span-2 flex gap-2">
-                  <button
-                    type="submit"
-                    className={`btn btn-primary ${saving ? "loading" : ""}`}
-                    disabled={saving}
-                  >
-                    {saving ? "Saving..." : "Save Profile"}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => {
-                      reset({
-                        name: user.displayName || "",
-                        phone: user.phone || "",
-                        address: user.address || "",
-                        photoURL: user.photoURL || "",
-                      });
-                      toast.info("Changes canceled");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div className="card bg-base-100 shadow border mt-6">
-            <div className="card-body">
-              <h4 className="text-lg font-semibold">Recent Issues</h4>
-              <p className="text-sm text-gray-500 mb-3">
-                Latest issues you reported
-              </p>
-
-              {loading ? (
-                <div className="text-sm text-gray-500">Loading...</div>
-              ) : recentIssues.length === 0 ? (
-                <div className="text-sm text-gray-500">
-                  You haven't reported any issues yet.
-                </div>
-              ) : (
-                <ul className="space-y-3">
-                  {recentIssues.map((it) => (
-                    <li
-                      key={it._id}
-                      className="flex items-start justify-between gap-3"
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => {
+                        reset({
+                          name: user.displayName || "",
+                          phone: user.phone || "",
+                          address: user.address || "",
+                          photoURL: user.photoURL || "",
+                        });
+                        toast.info("Changes canceled");
+                      }}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="w-14 h-10 rounded overflow-hidden bg-gray-100">
-                          <img
-                            src={
-                              (it.images && it.images[0]) ||
-                              "/placeholder-issue.jpg"
-                            }
-                            alt={it.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-medium">{it.title}</div>
-                          <div className="text-xs text-gray-500">
-                            {it.status} •{" "}
-                            {new Date(it.createdAt).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <button
-                          onClick={() => navigate(`/issue-details/${it._id}`)}
-                          className="btn btn-sm btn-ghost"
-                        >
-                          View
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className={`btn bg-brand-slate text-white hover:bg-slate-700 ${saving ? "loading" : ""}`}
+                      disabled={saving}
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </button>
+                </div>
+             </form>
           </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+             <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                   <FaHistory />
+                </div>
+                <div>
+                   <h3 className="text-xl font-bold text-gray-900">Recent Activity</h3>
+                   <p className="text-sm text-gray-500">Latest issues you've reported</p>
+                </div>
+             </div>
+
+             {recentIssues.length === 0 ? (
+                <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                   <p className="text-gray-500 mb-4">No reports found.</p>
+                   <button onClick={() => navigate('/report-issue')} className="btn btn-sm btn-outline">Report your first issue</button>
+                </div>
+             ) : (
+                <div className="space-y-4">
+                   {recentIssues.map((issue) => (
+                      <div key={issue._id} className="group flex items-center p-4 rounded-xl border border-slate-100 hover:border-brand-emerald/30 hover:shadow-md transition-all bg-white">
+                         <div className="w-16 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 mr-4">
+                            <img 
+                              src={(issue.images && issue.images[0]) || "/placeholder.jpg"} 
+                              alt="Issue" 
+                              className="w-full h-full object-cover" 
+                           />
+                         </div>
+                         <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-900 truncate group-hover:text-brand-emerald transition-colors">{issue.title}</h4>
+                            <p className="text-xs text-gray-500">{new Date(issue.createdAt).toLocaleDateString()} • <span className={`capitalize ${issue.status === 'resolved' ? 'text-green-600' : 'text-amber-600'}`}>{issue.status}</span></p>
+                         </div>
+                         <button onClick={() => navigate(`/issue-details/${issue._id}`)} className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 transition-opacity">
+                            View
+                         </button>
+                      </div>
+                   ))}
+                </div>
+             )}
+          </div>
+
         </div>
       </div>
     </div>
   );
 }
+
+const ProfileSkeleton = () => {
+    return (
+      <div className="min-h-screen bg-slate-50 py-10 px-4 lg:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* Sidebar Skeleton */}
+          <div className="lg:col-span-4 space-y-6">
+             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative h-[500px] animate-pulse">
+                <div className="h-32 bg-slate-200 w-full"></div>
+                <div className="w-24 h-24 rounded-full bg-slate-300 mx-auto -mt-12 border-4 border-white"></div>
+                
+                <div className="mt-4 space-y-2 flex flex-col items-center">
+                   <div className="h-6 w-32 bg-slate-200 rounded"></div>
+                   <div className="h-4 w-40 bg-slate-100 rounded"></div>
+                </div>
+  
+                <div className="mt-6 flex justify-center">
+                   <div className="h-8 w-24 bg-slate-200 rounded-full"></div>
+                </div>
+  
+                <div className="grid grid-cols-2 gap-4 mt-8 px-6">
+                   <div className="h-10 bg-slate-100 rounded"></div>
+                   <div className="h-10 bg-slate-100 rounded"></div>
+                </div>
+             </div>
+          </div>
+  
+          {/* Right Skeleton */}
+          <div className="lg:col-span-8 space-y-8">
+             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 h-[400px] animate-pulse">
+                <div className="flex items-center gap-3 mb-8">
+                   <div className="w-10 h-10 rounded-full bg-slate-200"></div>
+                   <div className="space-y-2">
+                       <div className="h-6 w-40 bg-slate-200 rounded"></div>
+                       <div className="h-4 w-60 bg-slate-100 rounded"></div>
+                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                   <div className="h-12 bg-slate-100 rounded-lg"></div>
+                   <div className="h-12 bg-slate-100 rounded-lg"></div>
+                </div>
+                <div className="mt-6 h-12 bg-slate-100 rounded-lg"></div>
+                <div className="mt-6 h-12 bg-slate-100 rounded-lg"></div>
+             </div>
+  
+             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 h-[200px] animate-pulse">
+               <div className="flex items-center gap-3 mb-6">
+                   <div className="w-10 h-10 rounded-full bg-slate-200"></div>
+                   <div className="h-6 w-32 bg-slate-200 rounded"></div>
+               </div>
+               <div className="h-20 bg-slate-50 rounded-lg"></div>
+             </div>
+          </div>
+  
+        </div>
+      </div>
+    );
+};

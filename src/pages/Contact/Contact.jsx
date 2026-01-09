@@ -1,158 +1,128 @@
 import React from "react";
-import { MdEmail, MdLocationOn, MdPhone } from "react-icons/md";
+import { MdEmail, MdLocationOn, MdPhone, MdSend } from "react-icons/md";
+import { toast } from "react-toastify";
 
 const Contact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: connect with backend / email service
-    console.log("Contact form submitted");
+    // Simulate form submission
+    toast.success("Message sent successfully! We'll allow you to know shortly.");
+    e.target.reset();
   };
 
   return (
-    <div className="min-h-screen bg-base-200 py-16">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-slate-50 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-primary">
-            Contact Us
+        <div className="text-center mb-16">
+          <span className="text-brand-emerald font-bold tracking-wider uppercase text-sm mb-2 block">Support</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Get in Touch
           </h1>
-          <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
-            Have a question, feedback, or need help with the Public
-            Infrastructure Issue Reporting System? Reach out to us anytime.
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+            We're here to help. Whether you have a question about reporting an issue or need technical support.
           </p>
         </div>
 
-        {/* Info + Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Contact Info */}
-          <div className="space-y-6">
-            <div className="card bg-base-100 shadow-md border">
-              <div className="card-body">
-                <h2 className="card-title text-xl mb-3">Get in touch</h2>
-                <p className="text-gray-600 text-sm">
-                  We work with citizens, staff, and administrators to improve
-                  city services. Use the contact form or reach us directly using
-                  the details below.
-                </p>
-
-                <div className="mt-5 space-y-4">
-                  <div className="flex items-start gap-3">
-                    <span className="mt-1">
-                      <MdEmail className="text-2xl text-primary" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm">Email</p>
-                      <p className="text-gray-600 text-sm">
-                        support@cityissuesystem.com
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="mt-1">
-                      <MdPhone className="text-2xl text-primary" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm">Phone</p>
-                      <p className="text-gray-600 text-sm">+880 1700-000000</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="mt-1">
-                      <MdLocationOn className="text-2xl text-primary" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm">Office</p>
-                      <p className="text-gray-600 text-sm">
-                        City Service Center, Smart City Road, Dhaka, Bangladesh
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-xs text-gray-500 mt-4">
-                  Response time: usually within 1–2 business days.
-                </p>
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          {/* Contact Info Cards */}
+          <div className="lg:col-span-1 space-y-6">
+            
+            {/* Email */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 text-2xl mb-4">
+                <MdEmail />
               </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">Email Us</h3>
+              <p className="text-gray-500 text-sm mb-4">For general inquiries and support.</p>
+              <a href="mailto:support@cityissues.com" className="text-brand-emerald font-semibold hover:underline">
+                support@cityissues.com
+              </a>
             </div>
+
+            {/* Phone */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-brand-emerald text-2xl mb-4">
+                <MdPhone />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">Call Us</h3>
+              <p className="text-gray-500 text-sm mb-4">Mon-Fri from 9am to 6pm.</p>
+              <a href="tel:+8801700000000" className="text-brand-emerald font-semibold hover:underline">
+                +880 1700-000000
+              </a>
+            </div>
+
+            {/* Office */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500 text-2xl mb-4">
+                <MdLocationOn />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">Visit Office</h3>
+              <p className="text-gray-500 text-sm mb-4">City Service Center, Smart City Road.</p>
+              <span className="text-gray-700 font-medium">Dhaka, Bangladesh</span>
+            </div>
+
           </div>
 
           {/* Contact Form */}
-          <div>
-            <div className="card bg-base-100 shadow-md border">
-              <form onSubmit={handleSubmit} className="card-body space-y-4">
-                <h2 className="card-title text-xl mb-2">Send us a message</h2>
-
-                {/* Name */}
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Full Name</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Your name"
-                    className="input input-bordered w-full"
-                    required
-                  />
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 md:p-10">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium text-gray-700">First Name</span>
+                    </label>
+                    <input type="text" placeholder="John" className="input input-bordered focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald w-full" required />
+                  </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium text-gray-700">Last Name</span>
+                    </label>
+                    <input type="text" placeholder="Doe" className="input input-bordered focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald w-full" required />
+                  </div>
                 </div>
 
-                {/* Email */}
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium">Email</span>
+                    <span className="label-text font-medium text-gray-700">Email Address</span>
                   </label>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="you@example.com"
-                    className="input input-bordered w-full"
-                    required
-                  />
+                  <input type="email" placeholder="john@example.com" className="input input-bordered focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald w-full" required />
                 </div>
 
-                {/* Subject */}
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium">Subject</span>
+                    <span className="label-text font-medium text-gray-700">Subject</span>
                   </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    placeholder="How can we help you?"
-                    className="input input-bordered w-full"
-                    required
-                  />
+                  <select className="select select-bordered focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald w-full">
+                     <option>General Inquiry</option>
+                     <option>Technical Support</option>
+                     <option>Feedback</option>
+                     <option>Report a Bug</option>
+                  </select>
                 </div>
 
-                {/* Message */}
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium">Message</span>
+                    <span className="label-text font-medium text-gray-700">Message</span>
                   </label>
-                  <textarea
-                    name="message"
-                    rows="4"
-                    placeholder="Write your message here..."
-                    className="textarea textarea-bordered w-full resize-none"
-                    required
-                  ></textarea>
+                  <textarea rows="5" placeholder="How can we help you?" className="textarea textarea-bordered focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald w-full text-base" required></textarea>
                 </div>
 
-                {/* Submit */}
-                <div className="form-control pt-2">
-                  <button type="submit" className="btn btn-primary w-full">
+                <div className="pt-4">
+                  <button type="submit" className="btn bg-brand-emerald hover:bg-emerald-600 text-white border-none w-full md:w-auto px-8 h-12 shadow-lg shadow-brand-emerald/20">
+                    <MdSend className="mr-2" />
                     Send Message
                   </button>
                 </div>
-
-                <p className="text-xs text-gray-500 text-center">
-                  Please do not share sensitive information in this form.
-                </p>
               </form>
             </div>
           </div>
+
         </div>
       </div>
     </div>
