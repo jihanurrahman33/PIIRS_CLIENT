@@ -7,7 +7,7 @@ const Banner = () => {
   const imgLinks = [
     "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2670&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2613&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1449824913929-2b362a3fec17?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=2672&auto=format&fit=crop",
   ];
 
   return (
