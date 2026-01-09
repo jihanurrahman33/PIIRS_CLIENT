@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import IssueCard from "../../components/IssueCard/IssueCard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { toast } from "react-toastify";
 import useAxios from "../../hooks/useAxios";
 
 const LatestResolvedIssues = () => {
   const axiosInstance = useAxios();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: latestResolvedIssues = [] } = useQuery({
@@ -103,32 +102,57 @@ const LatestResolvedIssues = () => {
     }
   };
 
-  return (
-    <div className="p-4">
-      <section className="flex justify-between items-center">
-        <h2 className="text-2xl">
-          Latest Resolved Issues: {latestResolvedIssues.length}
-        </h2>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/all-issues")}
-        >
-          View All
-        </button>
-      </section>
+  if(!latestResolvedIssues || latestResolvedIssues.length === 0) {
+      return null; 
+  }
 
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-        {latestResolvedIssues.map((issue) => (
-          <IssueCard
-            key={issue._id}
-            issue={issue}
-            onUpvote={() => handleUpVote(issue)}
-            onView={() => navigate(`/issue-details/${issue._id}`)}
-            disabled={loadingIds.has(issue._id)}
-          />
-        ))}
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-10">
+          <div className="max-w-2xl">
+            <span className="text-primary font-semibold tracking-wide uppercase text-sm">Community Impact</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">
+              Recently Resolved Issues
+            </h2>
+            <p className="text-gray-500 mt-3 text-lg">
+              See the positive changes happening in our community. Together we are making a difference.
+            </p>
+          </div>
+          
+          <Link
+            to="/all-issues"
+            className="group flex items-center gap-2 font-semibold text-primary hover:text-primary/80 transition-colors"
+          >
+            <span>View All Issues</span>
+            <svg 
+              className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+          {latestResolvedIssues.slice(0, 4).map((issue) => ( // Ensure we limit to 8 or appropriate number if API returns many
+            <div key={issue._id} className="h-full">
+                <IssueCard
+                    issue={issue}
+                    onUpvote={() => handleUpVote(issue)}
+                    // Assuming IssueCard doesn't handle navigation internally if onView is passed
+                    // But if it does, we can pass a navigate function or just the handler
+                />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
