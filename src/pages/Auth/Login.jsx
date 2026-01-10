@@ -16,8 +16,22 @@ const Login = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm();
+
+  const handleDemoLogin = (role) => {
+    if (role === 'admin') {
+      setValue("email", "admin@gmail.com");
+      setValue("password", "123456");
+    } else if(role === 'staff') {
+      setValue("email", "staff@gmail.com");
+      setValue("password", "123456");
+    } else {
+      setValue("email", "citizen@gmail.com");
+      setValue("password", "123456");
+    }
+  };
 
   const onSubmit = async (data) => {
     setAuthError("");
@@ -110,7 +124,30 @@ const Login = () => {
             </div>
 
             <div className="space-y-6">
-               <GoogleLogin />
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                   <button 
+                      type="button"
+                      onClick={() => handleDemoLogin('citizen')}
+                      className="btn btn-outline btn-sm text-xs font-bold border-slate-200 hover:bg-slate-50 hover:border-brand-emerald hover:text-brand-emerald"
+                   >
+                      Demo Citizen
+                   </button>
+                   <button 
+                      type="button"
+                      onClick={() => handleDemoLogin('admin')}
+                      className="btn btn-outline btn-sm text-xs font-bold border-slate-200 hover:bg-slate-50 hover:border-blue-500 hover:text-blue-600"
+                   >
+                      Demo Admin
+                   </button>
+                   <button 
+                      type="button"
+                      onClick={() => handleDemoLogin('staff')}
+                      className="btn btn-outline btn-sm text-xs font-bold border-slate-200 hover:bg-slate-50 hover:border-blue-500 hover:text-blue-600"
+                   >
+                      Demo Staff
+                   </button>
+                </div>
+                <GoogleLogin />
                
                <div className="relative flex py-1 items-center">
                   <div className="flex-grow border-t border-slate-200"></div>

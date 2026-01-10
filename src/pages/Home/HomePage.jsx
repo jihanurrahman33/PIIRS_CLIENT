@@ -10,8 +10,12 @@ const HomePage = () => {
     <div>
       <Banner />
       <LatestResolvedIssues />
-      <FeaturesSection />
-      <HowItWorks />
+      <section id="features">
+        <FeaturesSection />
+      </section>
+      <section id="how-it-works">
+        <HowItWorks />
+      </section>
       <ExtraSection />
     </div>
   );

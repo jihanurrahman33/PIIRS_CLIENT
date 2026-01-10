@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
-import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram, FaGithub } from "react-icons/fa";
+import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram, FaGithub, FaGlobe } from "react-icons/fa";
 import Logo from "../Logo/Logo";
 
 const Footer = () => {
@@ -17,17 +17,20 @@ const Footer = () => {
             </p>
           </div>
           <div className="flex items-center gap-4 pt-2">
-            <a href="#" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
+            <a href="https://web.facebook.com/nishak69?_rdc=1&_rdr#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
               <FaFacebook size={20} />
             </a>
-            <a href="#" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
-              <FaTwitter size={20} />
+            <a href="https://fantastic-kataifi-48b24f.netlify.app/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200" title="Portfolio">
+              <FaGlobe size={20} />
             </a>
-            <a href="#" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
+            <a href="https://www.linkedin.com/in/md-jihanur-rahman/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
               <FaLinkedin size={20} />
             </a>
-             <a href="#" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
+             <a href="https://github.com/jihanurrahman33" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
               <FaGithub size={20} />
+            </a>
+            <a href="https://www.instagram.com/nishak_69/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors hover:scale-110 transform duration-200">
+              <FaInstagram size={20} />
             </a>
           </div>
         </div>
@@ -47,14 +50,14 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <Link to="/how-it-works" className="hover:text-primary transition-colors">
+              <a href="/#how-it-works" className="hover:text-primary transition-colors">
                 How It Works
-              </Link>
+              </a>
             </li>
             <li>
-              <Link to="/features" className="hover:text-primary transition-colors">
+              <a href="/#features" className="hover:text-primary transition-colors">
                 Features
-              </Link>
+              </a>
             </li>
           </ul>
         </div>
@@ -86,29 +89,34 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Legal */}
+        {/* Socials */}
         <div>
-          <h6 className="font-semibold text-gray-900 mb-4 uppercase tracking-wider text-xs">Support & Legal</h6>
+          <h6 className="font-semibold text-gray-900 mb-4 uppercase tracking-wider text-xs">Socials</h6>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link to="/help-center" className="hover:text-primary transition-colors">
-                Help Center
-              </Link>
+              <a href="https://github.com/jihanurrahman33" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                GitHub
+              </a>
             </li>
             <li>
-              <Link to="/privacy-policy" className="hover:text-primary transition-colors">
-                Privacy Policy
-              </Link>
+              <a href="https://www.linkedin.com/in/md-jihanur-rahman/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                LinkedIn
+              </a>
             </li>
             <li>
-              <Link to="/terms-of-service" className="hover:text-primary transition-colors">
-                Terms of Service
-              </Link>
+              <a href="https://www.instagram.com/nishak_69/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                Instagram
+              </a>
             </li>
             <li>
-              <Link to="/cookie-policy" className="hover:text-primary transition-colors">
-                Cookie Policy
-              </Link>
+              <a href="https://web.facebook.com/nishak69?_rdc=1&_rdr#" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                Facebook
+              </a>
+            </li>
+            <li>
+              <a href="https://fantastic-kataifi-48b24f.netlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                Portfolio
+              </a>
             </li>
           </ul>
         </div>
