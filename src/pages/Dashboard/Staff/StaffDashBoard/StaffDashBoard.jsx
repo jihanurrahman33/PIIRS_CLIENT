@@ -56,8 +56,8 @@ const StaffDashBoard = () => {
 
   // Prepare Chart Data
   const chartData = (stats.last7Days || []).map((day) => ({
-    name: day.label,
-    issues: day.count,
+    name: day.label, // "MM-DD" or similar
+    count: day.count, 
     date: day.date,
   }));
 
@@ -210,7 +210,7 @@ const StaffDashBoard = () => {
                     <Tooltip content={<CustomTooltip />} />
                     <Area
                       type="monotone"
-                      dataKey="issues"
+                      dataKey="count"
                       stroke="#10B981"
                       strokeWidth={3}
                       fillOpacity={1}
