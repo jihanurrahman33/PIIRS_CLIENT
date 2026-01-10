@@ -2,14 +2,18 @@ import React, { useState } from "react";
 import IssueCard from "../../components/IssueCard/IssueCard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
-import { Link } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { toast } from "react-toastify";
 import useAxios from "../../hooks/useAxios";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const LatestResolvedIssues = () => {
-  const axiosInstance = useAxios();
+  const axiosInstance = useAxios(); // Keep public for fetching
+  const axiosSecure = useAxiosSecure(); // Use secure for actions
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { data: latestResolvedIssues = [] } = useQuery({
     queryKey: ["latest-resolved-issues", user?.email],
@@ -23,7 +27,8 @@ const LatestResolvedIssues = () => {
 
   const handleUpVote = async (issue) => {
     if (!user) {
-      toast.error("Please log in first.");
+      toast.info("Please log in to upvote.");
+      navigate("/login", { state: { from: location } });
       return;
     }
 
@@ -36,7 +41,6 @@ const LatestResolvedIssues = () => {
     // create new issues array with optimistic changes
     const optimistic = previous.map((it) => {
       if (it._id !== id) return it;
-      // If user already in upvoters then server will remove — here we reflect toggle
       const hasUpvoted =
         Array.isArray(it.upvoters) && it.upvoters.includes(user.email);
       const newUpvoters = hasUpvoted
@@ -53,26 +57,19 @@ const LatestResolvedIssues = () => {
       };
     });
 
-    // apply optimistic update
     queryClient.setQueryData(["issues"], optimistic);
-
-    // mark as loading
     setLoadingIds((prev) => new Set(prev).add(id));
 
     try {
-      // send patch (body empty to avoid form-encoding issues)
-      const res = await axiosInstance.patch(`/issues/${id}/upvote`, {});
-      // server should return { upvoted: boolean, upvotes: number }
+      const res = await axiosSecure.patch(`/issues/${id}/upvote`, {});
       const { upvoted, upvotes } = res.data || {};
 
-      // reconcile the cache with server result
       queryClient.setQueryData(["issues"], (old = []) =>
         old.map((it) =>
           it._id === id
             ? {
                 ...it,
                 upvotes: typeof upvotes === "number" ? upvotes : it.upvotes,
-                // if server says upvoted true, ensure user's email is present; else remove it
                 upvoters: upvoted
                   ? Array.isArray(it.upvoters) &&
                     it.upvoters.includes(user.email)
@@ -86,18 +83,15 @@ const LatestResolvedIssues = () => {
         )
       );
     } catch (err) {
-      // rollback on error
       queryClient.setQueryData(["issues"], previous);
       console.error("Upvote failed:", err);
       toast.error("Upvote failed. Please try again.");
     } finally {
-      // unmark loading
       setLoadingIds((prev) => {
         const copy = new Set(prev);
         copy.delete(id);
         return copy;
       });
-      // optional: refetch to be 100% in sync
       queryClient.invalidateQueries(["issues"]);
     }
   };
@@ -140,13 +134,12 @@ const LatestResolvedIssues = () => {
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-          {latestResolvedIssues.slice(0, 4).map((issue) => ( // Ensure we limit to 8 or appropriate number if API returns many
+          {latestResolvedIssues.slice(0, 4).map((issue) => (
             <div key={issue._id} className="h-full">
                 <IssueCard
                     issue={issue}
                     onUpvote={() => handleUpVote(issue)}
-                    // Assuming IssueCard doesn't handle navigation internally if onView is passed
-                    // But if it does, we can pass a navigate function or just the handler
+                    onView={() => navigate(`/issue-details/${issue._id}`)}
                 />
             </div>
           ))}

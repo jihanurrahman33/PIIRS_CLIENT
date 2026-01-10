@@ -1,16 +1,28 @@
 // src/pages/IssueDetails.jsx
 import React, { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
+import { 
+  FaArrowLeft, 
+  FaShareAlt, 
+  FaCheck, 
+  FaMapMarkerAlt, 
+  FaCalendarAlt,
+  FaArrowUp,
+  FaExclamationTriangle,
+  FaHardHat,
+  FaClipboardCheck
+} from "react-icons/fa";
 
 export default function IssueDetails() {
   const { id } = useParams();
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth() ?? {};
   const navigate = useNavigate();
+  const location = useLocation();
   const qc = useQueryClient();
 
   const [upvoting, setUpvoting] = useState(false);
@@ -39,7 +51,7 @@ export default function IssueDetails() {
     createdBy,
     images = [],
     isBoosted = false,
-    location = "Unknown",
+    location: issueLocation = "Unknown",
     priority = "normal",
     status = "pending",
     upvotes = 0,
@@ -54,47 +66,22 @@ export default function IssueDetails() {
       })
     : "Unknown";
 
-  // Refined Color Maps
-  const categoryStyles =
-    {
-      road: "bg-amber-100 text-amber-800 border-amber-200",
-      lighting: "bg-indigo-100 text-indigo-800 border-indigo-200",
-      water: "bg-cyan-100 text-cyan-800 border-cyan-200",
-      garbage: "bg-emerald-100 text-emerald-800 border-emerald-200",
-      sidewalk: "bg-rose-100 text-rose-800 border-rose-200",
-      other: "bg-gray-100 text-gray-800 border-gray-200",
-    }[category] || "bg-gray-100 text-gray-800 border-gray-200";
+  // -- STEPS CONFIG --
+  // We map the current status to a step index (0, 1, or 2)
+  const steps = [
+    { id: 'pending', label: 'Reported', icon: FaClipboardCheck },
+    { id: 'in_progress', label: 'In Progress', icon: FaHardHat },
+    { id: 'resolved', label: 'Resolved', icon: FaCheck }
+  ];
 
-  const statusStyles =
-    {
-      pending: "bg-orange-50 text-orange-600 ring-orange-500/20",
-      in_progress: "bg-blue-50 text-blue-600 ring-blue-500/20",
-      resolved: "bg-green-50 text-green-600 ring-green-500/20",
-      closed: "bg-gray-50 text-gray-600 ring-gray-500/20",
-    }[status] || "bg-gray-50 text-gray-600 ring-gray-500/20";
-
-  const priorityStyles =
-    {
-      low: "text-gray-500",
-      normal: "text-blue-600",
-      high: "text-red-600 font-bold",
-    }[priority] || "text-gray-500";
-
-  const effectiveTimeline = useMemo(() => {
-    if (Array.isArray(timeline) && timeline.length) return timeline;
-    return [
-      {
-        at: createdAt,
-        by: createdBy,
-        action: "created",
-        note: "Issue reported to the system",
-      },
-    ];
-  }, [timeline, createdAt, createdBy]);
+  const currentStepIndex = steps.findIndex(s => s.id === status);
+  // If status is 'closed' or unknown, default to max or 0
+  const activeStep = currentStepIndex === -1 ? (status === 'closed' ? 3 : 0) : currentStepIndex;
 
   const handleUpvote = async () => {
     if (!user) {
       toast.info("Please log in to upvote.");
+      navigate("/login", { state: { from: location } });
       return;
     }
     try {
@@ -122,347 +109,241 @@ export default function IssueDetails() {
     }
   };
 
-  // -- Loading State --
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-brand-emerald"></span>
       </div>
     );
   }
 
-  // -- Error State --
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center border border-red-100">
-          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-red-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            Unable to load issue
-          </h3>
+          <FaExclamationTriangle className="text-red-500 text-4xl mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Unable to load issue</h3>
           <p className="text-gray-500 mb-6">{error?.message}</p>
-          <div className="flex gap-3 justify-center">
-            <button className="btn btn-ghost" onClick={() => navigate(-1)}>
-              Go Back
-            </button>
-            <button
-              className="btn btn-error text-white"
-              onClick={() => qc.invalidateQueries(["issue-details", id])}
-            >
-              Try Again
-            </button>
-          </div>
+          <button className="btn btn-outline" onClick={() => navigate(-1)}>Go Back</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20">
-      {/* Breadcrumb / Top Nav */}
-      <div className="bg-white border-b sticky top-0 z-30 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50 pb-20">
+      
+      {/* 1. Navbar / Top Control */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 px-4 py-3 shadow-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+            className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-brand-emerald transition-colors"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5m7-7l-7 7 7 7" />
-            </svg>
-            Back to Issues
+            <FaArrowLeft /> Back
           </button>
-          <div className="flex gap-2">
-            {/* Simple Share Button */}
+          
+          <div className="flex items-center gap-4 text-sm text-gray-500">
+            <span className="hidden sm:inline font-mono">ID: #{id?.slice(-6).toUpperCase()}</span>
             <button
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({
-                    title,
-                    text: description,
-                    url: window.location.href,
-                  });
-                } else {
-                  toast.info("Link copied to clipboard");
-                  navigator.clipboard.writeText(window.location.href);
-                }
-              }}
-              className="btn btn-sm btn-ghost font-normal text-gray-600"
+               onClick={() => {
+                 const url = window.location.href;
+                 navigator.clipboard.writeText(url);
+                 toast.success("Link copied!");
+               }}
+               className="btn btn-sm btn-ghost btn-square"
             >
-              Share
+               <FaShareAlt />
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* LEFT COLUMN: Images & Description (Span 8) */}
-          <div className="lg:col-span-8 space-y-8">
-            {/* Header Section (Mobile/Desktop friendly) */}
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span
-                  className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${categoryStyles}`}
-                >
-                  {category}
-                </span>
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-md ring-1 ring-inset ${statusStyles}`}
-                >
-                  {status?.replace("_", " ").toUpperCase()}
-                </span>
-                {isBoosted && (
-                  <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                    BOOSTED 🚀
-                  </span>
-                )}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        
+        {/* 2. Status Tracker Banner */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-8">
+           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              {/* Info */}
+              <div className="text-center md:text-left">
+                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Current Status</h2>
+                 <div className={`text-2xl font-black uppercase tracking-tight ${
+                    status === 'resolved' ? 'text-brand-emerald' : 
+                    status === 'in_progress' ? 'text-blue-600' : 'text-amber-500'
+                 }`}>
+                    {status?.replace("_", " ")}
+                 </div>
+                 <div className="text-sm text-gray-500 mt-1">Last updated today</div>
               </div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
-                {title}
-              </h1>
-              <div className="flex items-center text-sm text-gray-500 gap-4">
-                <span className="flex items-center gap-1">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  {createdBy || "Anonymous"}
-                </span>
-                <span>•</span>
-                <span>{formattedDate}</span>
-              </div>
-            </div>
 
-            {/* Gallery */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="relative aspect-video bg-gray-100 group">
-                <img
-                  src={
-                    images.length > 0
-                      ? images[activeImage]
-                      : "/placeholder-issue.jpg"
-                  }
-                  alt={title}
-                  className="w-full h-full object-contain bg-gray-900/5 transition-transform duration-500"
-                />
-
-                {/* Image Navigation Dots (Overlay) */}
-                {images.length > 1 && (
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-                    {images.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setActiveImage(idx)}
-                        className={`w-2.5 h-2.5 rounded-full transition-all shadow-sm ${
-                          idx === activeImage
-                            ? "bg-white scale-125"
-                            : "bg-white/50 hover:bg-white/80"
-                        }`}
-                      />
+              {/* Stepper */}
+              <div className="flex-1 w-full max-w-2xl">
+                 <ul className="steps w-full">
+                    {steps.map((step, idx) => (
+                       <li 
+                          key={step.id} 
+                          className={`step ${idx <= activeStep ? 'step-primary before:!bg-brand-emerald after:!bg-brand-emerald' : ''}`}
+                          data-content={idx <= activeStep ? "✓" : "●"}
+                       >
+                          <span className={`text-xs font-bold mt-2 ${idx <= activeStep ? 'text-gray-900' : 'text-gray-400'}`}>
+                             {step.label}
+                          </span>
+                       </li>
                     ))}
-                  </div>
-                )}
+                 </ul>
               </div>
+           </div>
+        </div>
 
-              {/* Thumbnails Strip */}
-              {images.length > 1 && (
-                <div className="flex gap-3 p-4 overflow-x-auto bg-gray-50 border-t border-gray-100 scrollbar-hide">
-                  {images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveImage(idx)}
-                      className={`relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${
-                        activeImage === idx
-                          ? "border-primary ring-2 ring-primary/20"
-                          : "border-transparent opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`Thumbnail ${idx}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* LEFT: Evidence & Details (8 cols) */}
+          <div className="lg:col-span-8 space-y-8">
+             
+             {/* Main Info */}
+             <div>
+                <div className="flex items-center gap-3 mb-3">
+                   <div className="badge badge-lg border-transparent bg-slate-100 text-slate-600 font-bold uppercase text-xs tracking-wide">
+                      {category}
+                   </div>
+                   {isBoosted && <div className="badge badge-lg border-transparent bg-red-100 text-red-600 font-bold uppercase text-xs tracking-wide">High Priority</div>}
                 </div>
-              )}
+                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-4">
+                   {title}
+                </h1>
+                <div className="flex items-center gap-6 text-sm text-gray-500 font-medium">
+                   <span className="flex items-center gap-2">
+                      <FaCalendarAlt className="text-gray-400"/> {formattedDate}
+                   </span>
+                   <span className="flex items-center gap-1">
+                      by <span className="text-gray-900">{createdBy || "Anonymous"}</span>
+                   </span>
+                </div>
+             </div>
+
+            {/* Evidence Gallery */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+               <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+                  <h3 className="font-bold text-gray-900">Evidence Photo</h3>
+                  <span className="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-500">{images.length} FILES</span>
+               </div>
+               
+               {images.length > 0 ? (
+                  <div className="bg-slate-50 p-1">
+                     <div className="relative aspect-video rounded-xl overflow-hidden bg-white shadow-inner group">
+                        <img 
+                           src={images[activeImage]} 
+                           alt="Evidence" 
+                           className="w-full h-full object-contain"
+                        />
+                     </div>
+                     {images.length > 1 && (
+                        <div className="flex gap-2 mt-2 px-1 pb-1 overflow-x-auto">
+                           {images.map((img, idx) => (
+                              <button 
+                                 key={idx}
+                                 onClick={() => setActiveImage(idx)}
+                                 className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${
+                                    activeImage === idx ? 'border-brand-emerald opacity-100' : 'border-slate-200 opacity-60 hover:opacity-100'
+                                 }`}
+                              >
+                                 <img src={img} className="w-full h-full object-cover" />
+                              </button>
+                           ))}
+                        </div>
+                     )}
+                  </div>
+               ) : (
+                  <div className="h-48 flex flex-col items-center justify-center bg-slate-50 text-gray-400">
+                     <FaExclamationTriangle className="text-3xl mb-2 opacity-20" />
+                     <span className="text-sm">No visual evidence provided</span>
+                  </div>
+               )}
             </div>
 
-            {/* Description Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">
-                Description
-              </h3>
-              <div className="prose prose-blue max-w-none text-gray-600 leading-relaxed whitespace-pre-line">
-                {description || "No description provided."}
-              </div>
+            {/* Description Text */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+               <h3 className="text-lg font-bold text-gray-900 mb-4 border-b border-slate-100 pb-2">Description</h3>
+               <p className="text-gray-600 leading-relaxed whitespace-pre-line text-lg">
+                  {description}
+               </p>
             </div>
+
           </div>
 
-          {/* RIGHT COLUMN: Sidebar / Actions (Span 4) */}
+          {/* RIGHT: Actions & Context (4 cols) */}
           <aside className="lg:col-span-4 space-y-6">
-            {/* Action Card: Upvote */}
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sticky top-24">
-              <div className="text-center mb-6">
-                <div className="text-5xl font-bold text-gray-900 tracking-tighter mb-1">
-                  {upvotes}
+             
+             {/* Action Card */}
+             <div className="bg-white rounded-2xl shadow-lg border-t-4 border-brand-emerald p-6 z-20">
+                <div className="flex justify-between items-end mb-6">
+                   <div>
+                      <div className="text-sm font-bold text-gray-400 uppercase tracking-wider">Community Votes</div>
+                      <div className="text-4xl font-extrabold text-gray-900">{upvotes}</div>
+                   </div>
+                   <div className="text-right">
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Priority</div>
+                      <div className={`text-lg font-bold ${priority === 'high' ? 'text-red-500' : 'text-blue-500'}`}>
+                         {priority?.toUpperCase()}
+                      </div>
+                   </div>
                 </div>
-                <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                  Community Upvotes
+
+                <button 
+                   onClick={handleUpvote}
+                   disabled={upvoting}
+                   className="btn btn-lg w-full bg-brand-emerald hover:bg-emerald-600 text-white border-none shadow-lg shadow-brand-emerald/20 flex items-center gap-2"
+                >
+                   {upvoting ? <span className="loading loading-spinner"></span> : <FaArrowUp />}
+                   ENDORSE THIS ISSUE
+                </button>
+                <p className="text-xs text-center text-gray-400 mt-3 px-4">
+                   Endorsing helps the impact team prioritize this fix.
+                </p>
+             </div>
+
+             {/* Location Widget */}
+             <div className="bg-slate-800 rounded-2xl p-6 text-white shadow-md">
+                <div className="flex items-start gap-4">
+                   <FaMapMarkerAlt className="text-brand-emerald text-xl mt-1" />
+                   <div>
+                      <h3 className="font-bold text-lg mb-1">Location</h3>
+                      <p className="text-slate-300 leading-snug">{issueLocation}</p>
+                   </div>
                 </div>
-              </div>
-
-              <button
-                onClick={handleUpvote}
-                disabled={upvoting}
-                className={`w-full btn btn-lg h-14 text-lg border-none shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
-                  upvoting
-                    ? "bg-gray-100 text-gray-400"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-                }`}
-              >
-                {upvoting ? (
-                  <span className="loading loading-spinner"></span>
-                ) : (
-                  <>
-                    <svg
-                      className="w-6 h-6 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                      />
-                    </svg>
-                    Support Issue
-                  </>
-                )}
-              </button>
-              <p className="text-xs text-center text-gray-400 mt-4">
-                Voting helps prioritize resolution in {location}.
-              </p>
-            </div>
-
-            {/* Location Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">
-                Location & Priority
-              </h4>
-
-              <div className="flex items-start gap-3 mb-4">
-                <div className="mt-1 p-2 bg-blue-50 text-blue-600 rounded-lg">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">{location}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Approximate location
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-50">
-                <div className="text-sm text-gray-500">Urgency Level:</div>
-                <div className={`font-semibold ${priorityStyles}`}>
-                  {priority?.toUpperCase()}
-                </div>
-              </div>
-            </div>
-
-            {/* Timeline Widget */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-5">
-                Activity Timeline
-              </h4>
-
-              <div className="space-y-0">
-                {effectiveTimeline.map((t, i) => (
-                  <div key={i} className="flex gap-4 relative">
-                    {/* Vertical Line */}
-                    {i !== effectiveTimeline.length - 1 && (
-                      <div className="absolute left-[11px] top-8 bottom-[-8px] w-0.5 bg-gray-100"></div>
-                    )}
-
-                    {/* Dot */}
-                    <div className="relative z-10 w-6 h-6 flex-shrink-0 bg-white border-2 border-primary rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="pb-8">
-                      <p className="text-sm font-semibold text-gray-900">
-                        {t.action
-                          ? t.action.charAt(0).toUpperCase() + t.action.slice(1)
-                          : "Update"}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1 mb-2">
-                        {t.at ? new Date(t.at).toLocaleString() : ""}
-                      </p>
-                      {t.note && (
-                        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                          {t.note}
-                        </div>
+                <div className="mt-6 pt-6 border-t border-slate-700">
+                   <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Investigation Log</div>
+                   <div className="space-y-4">
+                      {timeline && timeline.length > 0 ? timeline.map((t, i) => (
+                         <div key={i} className="flex gap-3 text-sm">
+                            <div className="text-slate-400 w-24 flex-shrink-0 text-xs py-1">
+                               {new Date(t.at).toLocaleDateString()}
+                            </div>
+                            <div>
+                               <div className="font-bold text-white">{t.action}</div>
+                               <div className="text-slate-400 text-xs">{t.note}</div>
+                            </div>
+                         </div>
+                      )) : (
+                         <div className="text-slate-500 text-sm italic">No updates recorded yet.</div>
                       )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                      
+                      {/* Initial Created Log */}
+                       <div className="flex gap-3 text-sm opacity-50">
+                         <div className="text-slate-400 w-24 flex-shrink-0 text-xs py-1">
+                            {new Date(createdAt).toLocaleDateString()}
+                         </div>
+                         <div>
+                            <div className="font-bold text-white">Reported</div>
+                            <div className="text-slate-400 text-xs">Issue submitted by user</div>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+
           </aside>
+
         </div>
       </div>
     </div>

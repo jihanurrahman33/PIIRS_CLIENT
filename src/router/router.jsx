@@ -4,7 +4,6 @@ import HomePage from "../pages/Home/HomePage";
 import Error404 from "../pages/Error/Error404";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
-import GetStarted from "../pages/Auth/GetStarted";
 import Issues from "../pages/Issues/Issues";
 import About from "../pages/About/About";
 import Contact from "../pages/Contact/Contact";
@@ -31,11 +30,6 @@ export const router = createBrowserRouter([
         index: true,
         element: <HomePage />,
         handle: { title: "Home" },
-      },
-      {
-        path: "get-started",
-        Component: GetStarted,
-        handle: { title: "Get Started" },
       },
       {
         path: "login",

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
 import useAxios from "../../hooks/useAxios";
 import GoogleLogin from "./GoogleLogin";
+import { FaUser, FaEnvelope, FaLock, FaLink, FaArrowRight, FaTrophy, FaMedal, FaStar } from "react-icons/fa";
 
 const Register = () => {
   const [authError, setAuthError] = useState("");
@@ -24,21 +25,15 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     setAuthError("");
-
     const { name, email, password, photoURL } = data;
 
     try {
-      // 1) register the user with Firebase Auth
       const res = await registerUser(email, password);
       const firebaseUser = res.user;
 
-      // 2) update displayName and photoURL (optional but nice)
       await updateUserProfile({ displayName: name, photoURL });
+      const idToken = await firebaseUser.getIdToken(true);
 
-      // 3) get ID token to prove identity to your backend
-      const idToken = await firebaseUser.getIdToken(/* forceRefresh = */ true);
-
-      // 4) send allowed profile fields to your backend (backend will verify token)
       const payload = { name, photoURL };
       await axiosInstance.post("/users", payload, {
         headers: {
@@ -47,7 +42,6 @@ const Register = () => {
         },
       });
 
-      // 5) navigate after successful registration + sync
       navigate(from, { replace: true });
     } catch (err) {
       console.error("Registration error:", err);
@@ -56,223 +50,218 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center px-4">
-      <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8 items-center">
-        {/* Left side text */}
-        <div className="hidden md:block">
-          <h1 className="text-4xl font-bold leading-tight mb-4">
-            Create your account
-            <span className="text-primary block">Join City Issue Reporter</span>
-          </h1>
-          <p className="text-base text-gray-600 mb-4">
-            Become part of a smarter city. Create an account to report issues,
-            follow their progress, and contribute to better public services.
-          </p>
-          <ul className="list-disc list-inside text-sm text-gray-500 space-y-1">
-            <li>Report road, light, water, and cleanliness problems</li>
-            <li>Get status updates for every issue you submit</li>
-            <li>Upgrade to premium for priority handling</li>
-          </ul>
-        </div>
-
-        {/* Right side card */}
-        <div className="card bg-base-100 shadow-xl border">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="card-body space-y-4"
-            noValidate
-          >
-            <h2 className="card-title justify-center text-2xl mb-2">
-              Create an account
-            </h2>
-
-            {authError && (
-              <div className="alert alert-error py-2 text-sm">
-                <span>{authError}</span>
-              </div>
-            )}
-
-            {/* Name */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Full Name</span>
-              </label>
-              <input
-                type="text"
-                placeholder="John Doe"
-                className={`input input-bordered w-full ${
-                  errors.name ? "input-error" : ""
-                }`}
-                {...register("name", {
-                  required: "Name is required",
-                  minLength: {
-                    value: 3,
-                    message: "Name must be at least 3 characters",
-                  },
-                })}
-              />
-              {errors.name && (
-                <span className="text-xs text-error mt-1">
-                  {errors.name.message}
-                </span>
-              )}
+    <div className="min-h-screen grid lg:grid-cols-2 bg-white">
+      {/* Left Column: Contextual App Preview (Hidden on mobile) */}
+      <div className="hidden lg:flex flex-col justify-center bg-emerald-50 relative overflow-hidden p-12">
+         <div className="absolute inset-0 pattern-grid-lg opacity-5 text-brand-emerald"></div>
+         
+         <div className="relative z-10 max-w-lg mx-auto w-full">
+            <div className="mb-8">
+               <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+                  Make your voice <br/><span className="text-brand-emerald">count</span>.
+               </h1>
+               <p className="text-lg text-slate-500">
+                  Join a community of proactive citizens. Report issues, earn badges, and help build a better neighborhood.
+               </p>
             </div>
 
-            {/* Email */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Email</span>
-              </label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                className={`input input-bordered w-full ${
-                  errors.email ? "input-error" : ""
-                }`}
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Please enter a valid email address",
-                  },
-                })}
-              />
-              {errors.email && (
-                <span className="text-xs text-error mt-1">
-                  {errors.email.message}
-                </span>
-              )}
+            {/* "Citizen Impact" Widget Mock */}
+            <div className="bg-white rounded-2xl shadow-xl border border-emerald-100 overflow-hidden transform -rotate-1 hover:rotate-0 transition-transform duration-500">
+               <div className="bg-brand-emerald p-4 flex items-center justify-between text-white">
+                  <div className="flex items-center gap-3">
+                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                        <FaUser className="text-sm" />
+                     </div>
+                     <span className="font-bold">Citizen Profile</span>
+                  </div>
+                  <div className="badge bg-white/20 border-none text-white text-xs font-bold">LEVEL 3</div>
+               </div>
+               
+               <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                     <div>
+                        <div className="text-3xl font-black text-slate-900">12</div>
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Issues Reported</div>
+                     </div>
+                     <div className="text-right">
+                        <div className="text-3xl font-black text-brand-emerald">450</div>
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Impact Points</div>
+                     </div>
+                  </div>
+
+                  <div className="space-y-3">
+                     <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                           <FaTrophy />
+                        </div>
+                        <div>
+                           <div className="text-sm font-bold text-slate-900">Top Reporter</div>
+                           <div className="text-xs text-slate-500">This Month</div>
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                           <FaMedal />
+                        </div>
+                        <div>
+                           <div className="text-sm font-bold text-slate-900">Neighborhood Hero</div>
+                           <div className="text-xs text-slate-500">5 Issues Fixed</div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      {/* Right Column: Form */}
+      <div className="flex flex-col justify-center items-center p-6 sm:p-12 md:p-16 lg:px-24 bg-white relative">
+         <div className="w-full max-w-lg space-y-6">
+            <div className="text-center lg:text-left">
+               <Link to="/" className="lg:hidden inline-flex items-center gap-2 text-2xl font-black mb-8">
+                  <span className="text-brand-emerald">P</span>
+                  <span className="text-slate-900">IIRS</span>
+               </Link>
+               <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Create an account</h2>
+               <p className="text-gray-500 mt-2">Enter your details to get started.</p>
             </div>
 
-            {/* Photo URL */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Photo URL</span>
-              </label>
-              <input
-                type="url"
-                placeholder="https://example.com/photo.jpg"
-                className={`input input-bordered w-full ${
-                  errors.photoURL ? "input-error" : ""
-                }`}
-                {...register("photoURL", {
-                  required: "Photo URL is required",
-                  pattern: {
-                    value:
-                      /^(https?:\/\/(?:www\.|(?!www))[^\s.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/,
-                    message: "Please enter a valid URL",
-                  },
-                })}
-              />
-              {errors.photoURL && (
-                <span className="text-xs text-error mt-1">
-                  {errors.photoURL.message}
-                </span>
-              )}
+            <div className="space-y-6">
+               <GoogleLogin />
+               
+               <div className="relative flex py-1 items-center">
+                  <div className="flex-grow border-t border-slate-200"></div>
+                  <div className="flex-shrink-0 mx-4 text-slate-400 text-xs font-bold uppercase tracking-wider">Or register with email</div>
+                  <div className="flex-grow border-t border-slate-200"></div>
+               </div>
             </div>
 
-            {/* Password */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Password</span>
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className={`input input-bordered w-full ${
-                  errors.password ? "input-error" : ""
-                }`}
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                  // You can enforce stronger rules if you want:
-                  // pattern: {
-                  //   value: /^(?=.*[A-Z])(?=.*\d).+$/,
-                  //   message: "Must contain at least 1 uppercase & 1 number"
-                  // }
-                })}
-              />
-              {errors.password && (
-                <span className="text-xs text-error mt-1">
-                  {errors.password.message}
-                </span>
-              )}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+               {authError && (
+                  <div className="bg-red-50 text-red-600 text-sm p-4 rounded-xl">
+                     {authError}
+                  </div>
+               )}
+
+               <div className="form-control">
+                  <label className="label">
+                     <span className="label-text font-bold text-gray-700">Full Name</span>
+                  </label>
+                  <div className="relative">
+                     <div className="absolute left-3 top-3.5 text-gray-400"><FaUser /></div>
+                     <input
+                        type="text"
+                        placeholder="John Doe"
+                        className={`input input-bordered w-full pl-10 bg-slate-50 focus:bg-white transition-colors ${errors.name ? "input-error" : ""}`}
+                        {...register("name", { required: "Name is required", minLength: { value: 3, message: "Min 3 chars" } })}
+                     />
+                  </div>
+                  {errors.name && <span className="text-xs text-red-500 mt-1">{errors.name.message}</span>}
+               </div>
+
+               <div className="form-control">
+                  <label className="label">
+                     <span className="label-text font-bold text-gray-700">Email Address</span>
+                  </label>
+                  <div className="relative">
+                     <div className="absolute left-3 top-3.5 text-gray-400"><FaEnvelope /></div>
+                     <input
+                        type="email"
+                        placeholder="name@example.com"
+                        className={`input input-bordered w-full pl-10 bg-slate-50 focus:bg-white transition-colors ${errors.email ? "input-error" : ""}`}
+                        {...register("email", { 
+                           required: "Email is required", 
+                           pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email" } 
+                        })}
+                     />
+                  </div>
+                  {errors.email && <span className="text-xs text-red-500 mt-1">{errors.email.message}</span>}
+               </div>
+
+               <div className="form-control">
+                  <label className="label">
+                     <span className="label-text font-bold text-gray-700">Photo URL</span>
+                  </label>
+                  <div className="relative">
+                     <div className="absolute left-3 top-3.5 text-gray-400"><FaLink /></div>
+                     <input
+                        type="url"
+                        placeholder="https://..."
+                        className={`input input-bordered w-full pl-10 bg-slate-50 focus:bg-white transition-colors ${errors.photoURL ? "input-error" : ""}`}
+                        {...register("photoURL", { required: "Photo URL is required" })}
+                     />
+                  </div>
+                  {errors.photoURL && <span className="text-xs text-red-500 mt-1">{errors.photoURL.message}</span>}
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-control">
+                     <label className="label">
+                        <span className="label-text font-bold text-gray-700">Password</span>
+                     </label>
+                     <div className="relative">
+                        <div className="absolute left-3 top-3.5 text-gray-400"><FaLock /></div>
+                        <input
+                           type="password"
+                           placeholder="••••••••"
+                           className={`input input-bordered w-full pl-10 bg-slate-50 focus:bg-white transition-colors ${errors.password ? "input-error" : ""}`}
+                           {...register("password", { required: "Required", minLength: { value: 6, message: "Min 6 chars" } })}
+                        />
+                     </div>
+                     {errors.password && <span className="text-xs text-red-500 mt-1">{errors.password.message}</span>}
+                  </div>
+
+                  <div className="form-control">
+                     <label className="label">
+                        <span className="label-text font-bold text-gray-700">Confirm</span>
+                     </label>
+                     <div className="relative">
+                        <div className="absolute left-3 top-3.5 text-gray-400"><FaLock /></div>
+                        <input
+                           type="password"
+                           placeholder="••••••••"
+                           className={`input input-bordered w-full pl-10 bg-slate-50 focus:bg-white transition-colors ${errors.confirmPassword ? "input-error" : ""}`}
+                           {...register("confirmPassword", { 
+                              required: "Required", 
+                              validate: (val) => val === password || "Mismatch" 
+                           })}
+                        />
+                     </div>
+                     {errors.confirmPassword && <span className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</span>}
+                  </div>
+               </div>
+
+               <div className="form-control">
+                  <label className="cursor-pointer flex items-start gap-3 mt-2">
+                     <input
+                        type="checkbox"
+                        className="checkbox checkbox-primary checkbox-sm mt-0.5"
+                        {...register("terms", { required: "You must accept terms" })}
+                     />
+                     <span className="label-text text-sm text-gray-500 leading-tight">
+                        I agree to the <span className="text-brand-emerald font-semibold">Terms of Service</span> and <span className="text-brand-emerald font-semibold">Privacy Policy</span>.
+                     </span>
+                  </label>
+                  {errors.terms && <span className="text-xs text-red-500 mt-1">{errors.terms.message}</span>}
+               </div>
+
+               <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn btn-primary w-full h-12 text-base font-bold shadow-lg shadow-brand-emerald/20 mt-4"
+               >
+                  {isSubmitting ? <span className="loading loading-spinner"></span> : "Create Account"}
+                  {!isSubmitting && <FaArrowRight className="ml-2" />}
+               </button>
+            </form>
+
+            <div className="text-center text-sm text-gray-500">
+               Already have an account?{" "}
+               <Link to="/login" className="font-bold text-brand-emerald hover:text-emerald-700 transition-colors">
+                  Sign in
+               </Link>
             </div>
-
-            {/* Confirm Password */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Confirm Password</span>
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className={`input input-bordered w-full ${
-                  errors.confirmPassword ? "input-error" : ""
-                }`}
-                {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  validate: (value) =>
-                    value === password || "Passwords do not match",
-                })}
-              />
-              {errors.confirmPassword && (
-                <span className="text-xs text-error mt-1">
-                  {errors.confirmPassword.message}
-                </span>
-              )}
-            </div>
-
-            {/* Terms */}
-            <div className="form-control">
-              <label className="cursor-pointer flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  className={`checkbox checkbox-primary ${
-                    errors.terms ? "checkbox-error" : ""
-                  }`}
-                  {...register("terms", {
-                    required: "You must accept the terms & conditions",
-                  })}
-                />
-                <span className="label-text text-sm">
-                  I agree to the terms & conditions.
-                </span>
-              </label>
-              {errors.terms && (
-                <span className="text-xs text-error mt-1">
-                  {errors.terms.message}
-                </span>
-              )}
-            </div>
-
-            {/* Register button */}
-            <div className="form-control mt-2">
-              <button
-                type="submit"
-                className="btn btn-primary w-full"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Creating account..." : "Register"}
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="divider text-xs">OR CONTINUE WITH</div>
-            <GoogleLogin />
-
-            {/* Footer text */}
-            <p className="text-center text-sm mt-2">
-              Already have an account?{" "}
-              <Link to="/login" className="link link-primary font-medium ml-1">
-                Login
-              </Link>
-            </p>
-          </form>
-        </div>
+         </div>
       </div>
     </div>
   );

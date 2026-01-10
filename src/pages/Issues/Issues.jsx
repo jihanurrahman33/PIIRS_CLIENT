@@ -2,15 +2,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import IssueCard from "../../components/IssueCard/IssueCard";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { toast } from "react-toastify";
 import useAxios from "../../hooks/useAxios";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { FaSearch, FaFilter } from "react-icons/fa";
 
 const Issues = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
-  const axiosInstance = useAxios();
+  const axiosInstance = useAxios(); // Keep public for fetching
+  const axiosSecure = useAxiosSecure(); // Use secure for actions
   const queryClient = useQueryClient();
 
   // track which issue(s) are being updated to prevent double clicks
@@ -28,7 +31,8 @@ const Issues = () => {
 
   const handleUpVote = async (issue) => {
     if (!user) {
-      toast.error("Please log in first.");
+      toast.info("Please log in to upvote.");
+      navigate("/login", { state: { from: location } });
       return;
     }
 
@@ -61,7 +65,7 @@ const Issues = () => {
     setLoadingIds((prev) => new Set(prev).add(id));
 
     try {
-      const res = await axiosInstance.patch(`/issues/${id}/upvote`, {});
+      const res = await axiosSecure.patch(`/issues/${id}/upvote`, {});
       const { upvoted, upvotes } = res.data || {};
 
       queryClient.setQueryData(["issues"], (old = []) =>
@@ -96,13 +100,31 @@ const Issues = () => {
     }
   };
 
-  // Filter Logic
+  // Filter & Sort Logic
   const filteredIssues = issues.filter(issue => {
     const matchesSearch = issue.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           issue.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === "All" || issue.category === filterCategory;
     
     return matchesSearch && matchesCategory;
+  }).sort((a, b) => {
+    const statusPriority = {
+      pending: 1,
+      in_progress: 2,
+      resolved: 3,
+      rejected: 4,
+      cancelled: 5
+    };
+    const priorityA = statusPriority[a.status] || 99;
+    const priorityB = statusPriority[b.status] || 99;
+    
+    // 1. Sort by Status Priority
+    if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+    }
+    
+    // 2. Sort by Upvotes (Highest first)
+    return (b.upvotes || 0) - (a.upvotes || 0);
   });
 
   const [currentPage, setCurrentPage] = useState(1);

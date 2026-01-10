@@ -52,6 +52,7 @@ export default function IssueCard({ issue = {}, onUpvote, onView }) {
   const catClass = categoryMap[category] || categoryMap.other;
   const statClass = statusMap[status] || statusMap.pending;
   const prClass = priorityMap[priority] || priorityMap.normal;
+  const hasUpvoted = Array.isArray(issue.upvoters) && user?.email && issue.upvoters.includes(user.email);
 
   return (
     <article
@@ -134,21 +135,30 @@ export default function IssueCard({ issue = {}, onUpvote, onView }) {
       {/* Actions */}
       <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between gap-3">
         <button
-          onClick={() => onUpvote?.(issue)}
+          onClick={(e) => {
+             // Add a subtle pop effect
+             e.currentTarget.classList.add('scale-125');
+             setTimeout(() => e.currentTarget.classList.remove('scale-125'), 200);
+             onUpvote?.(issue);
+          }}
           disabled={issue.createdBy === user?.email}
           aria-label="Upvote"
-          className="btn btn-sm btn-ghost gap-2 text-gray-600 hover:text-primary hover:bg-primary/5 disabled:bg-transparent"
+          className={`btn btn-sm gap-2 transition-all duration-300 ease-out disabled:bg-transparent ${
+             hasUpvoted 
+             ? 'bg-primary/10 text-primary hover:bg-primary/20 border-primary/20' 
+             : 'btn-ghost text-gray-500 hover:text-primary hover:bg-primary/5'
+          }`}
         >
           <svg
-            className={`w-5 h-5 ${upvotes > 0 ? 'fill-current text-primary' : ''}`}
+            className={`w-5 h-5 transition-transform duration-300 ${hasUpvoted ? 'fill-current scale-110' : 'scale-100'}`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth={hasUpvoted ? "0" : "2"}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
           </svg>
-          <span className="font-semibold">{upvotes ?? 0}</span>
+          <span className={`font-bold ${hasUpvoted ? 'text-primary' : 'text-gray-600'}`}>{upvotes ?? 0}</span>
         </button>
 
         <button
