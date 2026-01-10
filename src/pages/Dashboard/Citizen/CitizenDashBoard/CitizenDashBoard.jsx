@@ -41,11 +41,12 @@ const CitizenDashBoard = () => {
     staleTime: 1000 * 60 * 2,
   });
 
-  // Fetch Recent Issues
+  // Fetch Recent Issues using the /issues/user/:email API obtained from the user
+  const limit = 6;
   const { data: recentIssues = [], isLoading: recentLoading } = useQuery({
-    queryKey: ["citizen-recent-issues", user?.email],
+    queryKey: ["citizen-recent-issues", user?.email, limit],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/issues/user/${user?.email}?limit=6`);
+      const res = await axiosSecure.get(`/issues/user/${user?.email}?limit=${limit}`);
       return res.data;
     },
     enabled: !!user?.email,
@@ -53,10 +54,10 @@ const CitizenDashBoard = () => {
 
   const refresh = () => {
     queryClient.invalidateQueries(["citizen-stats", user?.email]);
-    queryClient.invalidateQueries(["citizen-recent-issues", user?.email]);
+    queryClient.invalidateQueries(["citizen-recent-issues", user?.email, limit]);
   };
 
-  const isBlocked = Boolean(userDoc?.isBlocked || userDoc?.isBlcoked);
+  const isBlocked = Boolean(userDoc?.isBlocked);
 
   // Chart Data
   const chartData = (stats.last7Days || []).map((day) => ({
@@ -110,7 +111,7 @@ const CitizenDashBoard = () => {
           </button>
           
           <button 
-             onClick={() => navigate("/dashboard/add-issue")}
+             onClick={() => navigate("/report-issue")}
              disabled={isBlocked}
              className="btn btn-primary btn-sm gap-2 shadow-lg shadow-brand-emerald/20 border-none bg-brand-emerald hover:bg-emerald-600 text-white"
           >

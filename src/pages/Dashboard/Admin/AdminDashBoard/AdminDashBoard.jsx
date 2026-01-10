@@ -47,7 +47,7 @@ export default function AdminDashBoard() {
   });
 
   const { data: latestIssues = [], isLoading: issuesLoading } = useQuery({
-    queryKey: ["admin-latest-issues"],
+    queryKey: ["admin-latest-issues", 5, "createdAt_desc"],
     queryFn: async () => {
       const res = await axiosSecure.get("/issues?limit=5&sort=createdAt_desc");
       return res.data;
@@ -56,7 +56,7 @@ export default function AdminDashBoard() {
   });
 
   const { data: latestUsers = [], isLoading: usersLoading } = useQuery({
-    queryKey: ["admin-latest-users"],
+    queryKey: ["admin-latest-users", 5, "createdAt_desc"],
     queryFn: async () => {
       const res = await axiosSecure.get("/users?limit=5&sort=createdAt_desc");
       return res.data;
@@ -66,8 +66,8 @@ export default function AdminDashBoard() {
 
   const refreshAll = () => {
     qc.invalidateQueries(["admin-dashboard-stats"]);
-    qc.invalidateQueries(["admin-latest-issues"]);
-    qc.invalidateQueries(["admin-latest-users"]);
+    qc.invalidateQueries(["admin-latest-issues", 5, "createdAt_desc"]);
+    qc.invalidateQueries(["admin-latest-users", 5, "createdAt_desc"]);
   };
 
   const isLoading = statsLoading || issuesLoading || usersLoading;
@@ -85,6 +85,12 @@ export default function AdminDashBoard() {
   const paymentsCount = stats.paymentsCount ?? 0;
   const paymentsTotalAmount = stats.paymentsTotalAmount ?? 0;
   const last7Days = stats.last7Days ?? [];
+
+  // Calculate dynamic trends
+  const last7DaysCount = last7Days.reduce((acc, curr) => acc + (curr.count || 0), 0);
+  const successRate = totalSubmitted > 0 
+    ? ((resolvedCount / totalSubmitted) * 100).toFixed(0) 
+    : 0;
 
   // Data for Pie Chart
   const statusData = [
@@ -125,14 +131,14 @@ export default function AdminDashBoard() {
           value={totalSubmitted}
           icon={<FiFileText className="text-white" />}
           color="bg-blue-500"
-          trend="+12% from last week"
+          trend={`+${last7DaysCount} this week`}
         />
         <StatCard
           title="Resolved"
           value={resolvedCount}
           icon={<FiCheckCircle className="text-white" />}
           color="bg-emerald-500"
-          trend="94% success rate"
+          trend={`${successRate}% success rate`}
         />
         <StatCard 
           title="Pending Review" 
